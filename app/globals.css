@@ -326,6 +326,10 @@ body {
 .sticky-pill.mass { color: var(--green); }
 .sticky-pill.coverage { color: var(--purple); }
 .sticky-pill.fbe { color: var(--amber); }
+.sticky-rate {
+  opacity: 0.7;
+  font-size: 9px;
+}
 
 /* --- Tab Bar --- */
 .tab-bar {
