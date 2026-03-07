@@ -3,21 +3,26 @@
 // MYCELIUM — Building List Panel
 // ============================================
 
+import { useState } from 'react';
 import { GameState } from '@/lib/types';
 import { BUILDINGS, isBuildingUnlocked } from '@/lib/buildings';
 import BuildingCard from './BuildingCard';
 
+type BuyMode = 1 | 10 | 'max';
+
 interface BuildingListProps {
   state: GameState;
   onPurchase: (buildingId: string) => void;
+  onPurchaseMultiple: (buildingId: string, count: number) => void;
 }
 
-export default function BuildingList({ state, onPurchase }: BuildingListProps) {
+export default function BuildingList({ state, onPurchase, onPurchaseMultiple }: BuildingListProps) {
+  const [buyMode, setBuyMode] = useState<BuyMode>(1);
+
   const unlockedBuildings = BUILDINGS.filter(b =>
     isBuildingUnlocked(b, state.stats.totalSporesEarned, state.buildings, state.prestige.timesPrestiged)
   );
 
-  // Show next locked building as teaser
   const nextLocked = BUILDINGS.find(b =>
     !isBuildingUnlocked(b, state.stats.totalSporesEarned, state.buildings, state.prestige.timesPrestiged)
   );
@@ -30,6 +35,28 @@ export default function BuildingList({ state, onPurchase }: BuildingListProps) {
         <span className="panel-count">{unlockedBuildings.length}/{BUILDINGS.length}</span>
       </div>
 
+      {/* Buy mode toggle */}
+      <div className="buy-mode-toggle">
+        <button
+          className={`buy-mode-btn ${buyMode === 1 ? 'active' : ''}`}
+          onClick={() => setBuyMode(1)}
+        >
+          x1
+        </button>
+        <button
+          className={`buy-mode-btn ${buyMode === 10 ? 'active' : ''}`}
+          onClick={() => setBuyMode(10)}
+        >
+          x10
+        </button>
+        <button
+          className={`buy-mode-btn ${buyMode === 'max' ? 'active' : ''}`}
+          onClick={() => setBuyMode('max')}
+        >
+          MAX
+        </button>
+      </div>
+
       <div className="building-scroll">
         {unlockedBuildings.map(def => {
           const owned = state.buildings.find(b => b.id === def.id)?.count || 0;
@@ -40,6 +67,8 @@ export default function BuildingList({ state, onPurchase }: BuildingListProps) {
               owned={owned}
               state={state}
               onPurchase={onPurchase}
+              onPurchaseMultiple={onPurchaseMultiple}
+              buyMode={buyMode}
             />
           );
         })}

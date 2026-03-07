@@ -8,41 +8,114 @@ import { getBuildingCost } from '@/lib/buildings';
 import { formatNumber } from '@/lib/formatNumber';
 import { getNextMilestone, getMilestoneMultiplier } from '@/lib/milestones';
 
+type BuyMode = 1 | 10 | 'max';
+
 interface BuildingCardProps {
   def: BuildingDefinition;
   owned: number;
   state: GameState;
   onPurchase: (buildingId: string) => void;
+  onPurchaseMultiple: (buildingId: string, count: number) => void;
+  buyMode: BuyMode;
 }
 
-export default function BuildingCard({ def, owned, state, onPurchase }: BuildingCardProps) {
-  const cost = getBuildingCost(def, owned);
-  const notation = state.settings.notation;
-  const nextMilestone = getNextMilestone(def.id, owned);
-  const currentMilestoneMult = getMilestoneMultiplier(def.id, owned);
+// Calculate how many of a building you can afford
+function getMaxAffordable(def: BuildingDefinition, owned: number, state: GameState): number {
+  let count = 0;
+  let testOwned = owned;
+  let sporesLeft = state.resources.spores;
+  let massLeft = state.resources.myceliumMass;
+  const coverageLeft = state.resources.substrateCoverage;
 
-  // Apply cost reduction from aspect
   let costMult = 1;
   if (state.prestige.aspectAwakenings.includes('aspect_cheap_buildings')) {
     costMult = 0.9;
   }
 
-  const finalSporeCost = cost.spores * costMult;
-  const finalMassCost = cost.myceliumMass * costMult;
+  // Cap at 500 to avoid huge loops
+  while (count < 500) {
+    const cost = getBuildingCost(def, testOwned);
+    const sporeCost = cost.spores * costMult;
+    const massCost = cost.myceliumMass * costMult;
 
-  const canAfford =
-    state.resources.spores >= finalSporeCost &&
-    (finalMassCost <= 0 || state.resources.myceliumMass >= finalMassCost) &&
-    (cost.substrateCoverage <= 0 || state.resources.substrateCoverage >= cost.substrateCoverage);
+    if (sporesLeft < sporeCost) break;
+    if (massCost > 0 && massLeft < massCost) break;
+    if (cost.substrateCoverage > 0 && coverageLeft < cost.substrateCoverage) break;
+
+    sporesLeft -= sporeCost;
+    massLeft -= massCost;
+    testOwned++;
+    count++;
+  }
+  return count;
+}
+
+// Calculate total cost for N purchases
+function getBulkCost(def: BuildingDefinition, owned: number, count: number, costMult: number): { spores: number; mass: number } {
+  let totalSpores = 0;
+  let totalMass = 0;
+  for (let i = 0; i < count; i++) {
+    const cost = getBuildingCost(def, owned + i);
+    totalSpores += cost.spores * costMult;
+    totalMass += cost.myceliumMass * costMult;
+  }
+  return { spores: totalSpores, mass: totalMass };
+}
+
+export default function BuildingCard({ def, owned, state, onPurchase, onPurchaseMultiple, buyMode }: BuildingCardProps) {
+  const notation = state.settings.notation;
+  const nextMilestone = getNextMilestone(def.id, owned);
+  const currentMilestoneMult = getMilestoneMultiplier(def.id, owned);
+
+  let costMult = 1;
+  if (state.prestige.aspectAwakenings.includes('aspect_cheap_buildings')) {
+    costMult = 0.9;
+  }
+
+  // Determine actual buy count
+  const maxAffordable = getMaxAffordable(def, owned, state);
+  let actualBuyCount: number;
+  if (buyMode === 'max') {
+    actualBuyCount = maxAffordable;
+  } else if (buyMode === 10) {
+    actualBuyCount = Math.min(10, maxAffordable);
+  } else {
+    actualBuyCount = Math.min(1, maxAffordable);
+  }
+
+  const canAfford = actualBuyCount > 0;
+
+  // Show cost for the displayed buy amount
+  const displayCount = buyMode === 'max' ? maxAffordable : (buyMode === 10 ? 10 : 1);
+  const bulkCost = getBulkCost(def, owned, Math.min(displayCount, maxAffordable || 1), costMult);
+  // For single buy, show exact next cost
+  const singleCost = getBuildingCost(def, owned);
+  const showSpores = buyMode === 1 ? singleCost.spores * costMult : bulkCost.spores;
+  const showMass = buyMode === 1 ? singleCost.myceliumMass * costMult : bulkCost.mass;
+  const showCoverage = singleCost.substrateCoverage;
 
   const tierColors: Record<number, string> = {
-    1: '#22c55e', // green
-    2: '#00d4ff', // cyan
-    3: '#a855f7', // purple
-    4: '#f59e0b', // amber
+    1: '#22c55e',
+    2: '#00d4ff',
+    3: '#a855f7',
+    4: '#f59e0b',
+  };
+  const tierColor = tierColors[def.tier] || '#22c55e';
+
+  const handleBuy = () => {
+    if (actualBuyCount <= 0) return;
+    if (actualBuyCount === 1) {
+      onPurchase(def.id);
+    } else {
+      onPurchaseMultiple(def.id, actualBuyCount);
+    }
   };
 
-  const tierColor = tierColors[def.tier] || '#22c55e';
+  const buyLabel = buyMode === 'max'
+    ? `BUY ${maxAffordable}`
+    : buyMode === 10
+      ? `BUY 10`
+      : 'BUY';
 
   return (
     <div
@@ -64,27 +137,27 @@ export default function BuildingCard({ def, owned, state, onPurchase }: Building
 
       <div className="building-card-footer">
         <div className="building-costs">
-          <span className={state.resources.spores >= finalSporeCost ? 'cost-ok' : 'cost-bad'}>
-            🍄 {formatNumber(finalSporeCost, notation)}
+          <span className={state.resources.spores >= showSpores ? 'cost-ok' : 'cost-bad'}>
+            🍄 {formatNumber(showSpores, notation)}
           </span>
-          {finalMassCost > 0 && (
-            <span className={state.resources.myceliumMass >= finalMassCost ? 'cost-ok' : 'cost-bad'}>
-              🧬 {formatNumber(finalMassCost, notation)}
+          {showMass > 0 && (
+            <span className={state.resources.myceliumMass >= showMass ? 'cost-ok' : 'cost-bad'}>
+              🧬 {formatNumber(showMass, notation)}
             </span>
           )}
-          {cost.substrateCoverage > 0 && (
-            <span className={state.resources.substrateCoverage >= cost.substrateCoverage ? 'cost-ok' : 'cost-bad'}>
-              🗺️ {cost.substrateCoverage}%
+          {showCoverage > 0 && (
+            <span className={state.resources.substrateCoverage >= showCoverage ? 'cost-ok' : 'cost-bad'}>
+              🗺️ {showCoverage}%
             </span>
           )}
         </div>
         <button
           className="buy-button"
           disabled={!canAfford}
-          onClick={() => onPurchase(def.id)}
+          onClick={handleBuy}
           style={{ backgroundColor: canAfford ? tierColor : undefined }}
         >
-          BUY
+          {buyLabel}
         </button>
       </div>
 

@@ -67,6 +67,112 @@ export const UPGRADES: UpgradeDefinition[] = [
     tier: 1
   },
 
+  // ---- GAP FILLERS: Early-to-Mid transition (1.5K-50K earned) ----
+  {
+    id: 'network_pulse',
+    name: 'Network Pulse',
+    description: 'All buildings produce 1.5x more spores.',
+    cost: { spores: 3000 },
+    effect: { type: 'multiply_all', value: 1.5 },
+    unlockCondition: { type: 'spores', sporesEarned: 2000 },
+    icon: '📡',
+    tier: 1
+  },
+  {
+    id: 'rapid_colonization',
+    name: 'Rapid Colonization',
+    description: 'Root Colonizers produce 5x more spores.',
+    cost: { spores: 15000 },
+    effect: { type: 'multiply_building', targetBuildingId: 'root_colonizer', value: 5 },
+    unlockCondition: { type: 'building', buildingId: 'root_colonizer', buildingCount: 15 },
+    icon: '🚀',
+    tier: 1
+  },
+  {
+    id: 'decomp_mastery',
+    name: 'Decomposition Mastery',
+    description: 'Organic Breakers produce 3x more spores.',
+    cost: { spores: 8000 },
+    effect: { type: 'multiply_building', targetBuildingId: 'organic_breaker', value: 3 },
+    unlockCondition: { type: 'spores', sporesEarned: 5000 },
+    icon: '🔥',
+    tier: 1
+  },
+  {
+    id: 'acid_surge',
+    name: 'Acid Surge',
+    description: 'Soil Acidifiers produce 3x more spores.',
+    cost: { spores: 25000 },
+    effect: { type: 'multiply_building', targetBuildingId: 'soil_acidifier', value: 3 },
+    unlockCondition: { type: 'building', buildingId: 'soil_acidifier', buildingCount: 10 },
+    icon: '⚡',
+    tier: 1
+  },
+  {
+    id: 'click_frenzy',
+    name: 'Click Frenzy',
+    description: 'Clicking produces 3x more spores.',
+    cost: { spores: 10000 },
+    effect: { type: 'multiply_click', value: 3 },
+    unlockCondition: { type: 'spores', sporesEarned: 8000 },
+    icon: '🎯',
+    tier: 1
+  },
+
+  // ---- GAP FILLERS: Mid-game (50K-500K earned) ----
+  {
+    id: 'nutrient_overdrive',
+    name: 'Nutrient Overdrive',
+    description: 'Nutrient Transporters produce 3x more.',
+    cost: { spores: 80000 },
+    effect: { type: 'multiply_building', targetBuildingId: 'nutrient_transporter', value: 3 },
+    unlockCondition: { type: 'spores', sporesEarned: 30000 },
+    icon: '⚡',
+    tier: 2
+  },
+  {
+    id: 'global_boost_1',
+    name: 'Fungal Awakening',
+    description: 'All buildings produce 2x more spores.',
+    cost: { spores: 150000 },
+    effect: { type: 'multiply_all', value: 2 },
+    unlockCondition: { type: 'spores', sporesEarned: 75000 },
+    icon: '🌅',
+    tier: 2
+  },
+  {
+    id: 'click_boost_mid',
+    name: 'Hyphal Slam',
+    description: 'Clicking produces 4x more spores.',
+    cost: { spores: 300000 },
+    effect: { type: 'multiply_click', value: 4 },
+    unlockCondition: { type: 'spores', sporesEarned: 150000 },
+    icon: '💪',
+    tier: 2
+  },
+
+  // ---- GAP FILLERS: Mid-to-Late (500K-5M earned) ----
+  {
+    id: 'exponential_growth',
+    name: 'Exponential Growth',
+    description: 'All buildings produce 2x more spores.',
+    cost: { spores: 2000000 },
+    effect: { type: 'multiply_all', value: 2 },
+    unlockCondition: { type: 'spores', sporesEarned: 1500000 },
+    icon: '📈',
+    tier: 2
+  },
+  {
+    id: 'territory_mastery',
+    name: 'Territory Mastery',
+    description: 'Territory Expanders produce 3x more.',
+    cost: { spores: 8000000, myceliumMass: 300 },
+    effect: { type: 'multiply_building', targetBuildingId: 'territory_expander', value: 3 },
+    unlockCondition: { type: 'spores', sporesEarned: 3000000 },
+    icon: '🌍',
+    tier: 2
+  },
+
   // ---- TIER 2 UPGRADES ----
   {
     id: 'highway_efficiency',

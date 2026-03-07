@@ -25,6 +25,7 @@ import SettingsMenu from '@/components/SettingsMenu';
 import AchievementToast from '@/components/AchievementToast';
 import NextUnlockBar from '@/components/NextUnlockBar';
 import StickyResources from '@/components/StickyResources';
+import GoldenSpore from '@/components/GoldenSpore';
 
 type Tab = 'buildings' | 'upgrades' | 'prestige' | 'stats';
 
@@ -128,6 +129,37 @@ export default function GamePage() {
     if (state?.settings.sfxEnabled) playSFX('purchase');
   }, [state?.settings.sfxEnabled]);
 
+  const handlePurchaseMultiple = useCallback((buildingId: string, count: number) => {
+    setState(prev => {
+      if (!prev) return prev;
+      const oldCount = prev.buildings.find(b => b.id === buildingId)?.count || 0;
+      let current = prev;
+      for (let i = 0; i < count; i++) {
+        const result = purchaseBuilding(current, buildingId);
+        if (!result) break;
+        current = result;
+      }
+      if (current === prev) return prev;
+      const newCount = current.buildings.find(b => b.id === buildingId)?.count || 0;
+
+      // Check for milestone hits across the bulk purchase
+      const newMilestones = checkNewMilestones(buildingId, oldCount, newCount);
+      if (newMilestones.length > 0) {
+        const milestoneToasts = newMilestones.map(m => ({
+          id: `milestone_${m.buildingId}_${m.count}`,
+          icon: m.icon,
+          name: `MILESTONE: ${m.name}`,
+          description: `x${m.multiplier} profit bonus!`,
+        }));
+        setToasts(t => [...t, ...milestoneToasts]);
+        if (prev.settings.sfxEnabled) playSFX('upgrade');
+      }
+
+      return current;
+    });
+    if (state?.settings.sfxEnabled) playSFX('purchase');
+  }, [state?.settings.sfxEnabled]);
+
   const handlePurchaseUpgrade = useCallback((upgradeId: string) => {
     setState(prev => {
       if (!prev) return prev;
@@ -183,6 +215,25 @@ export default function GamePage() {
       };
     });
     if (state?.settings.sfxEnabled) playSFX('upgrade');
+  }, [state?.settings.sfxEnabled]);
+
+  const handleGoldenSpore = useCallback((bonus: number) => {
+    setState(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        resources: { ...prev.resources, spores: prev.resources.spores + bonus },
+        stats: { ...prev.stats, totalSporesEarned: prev.stats.totalSporesEarned + bonus },
+      };
+    });
+    // Show a toast
+    setToasts(prev => [...prev, {
+      id: `golden_${Date.now()}`,
+      icon: '✨',
+      name: 'LUCKY SPORE!',
+      description: `Bonus spores collected!`,
+    }]);
+    if (state?.settings.sfxEnabled) playSFX('prestige');
   }, [state?.settings.sfxEnabled]);
 
   const handleUpdateSettings = useCallback((updates: Partial<GameSettings>) => {
@@ -276,7 +327,7 @@ export default function GamePage() {
       {/* Tab content */}
       <div className="tab-content">
         {activeTab === 'buildings' && (
-          <BuildingList state={state} onPurchase={handlePurchaseBuilding} />
+          <BuildingList state={state} onPurchase={handlePurchaseBuilding} onPurchaseMultiple={handlePurchaseMultiple} />
         )}
         {activeTab === 'upgrades' && (
           <UpgradePanel state={state} onPurchase={handlePurchaseUpgrade} />
@@ -302,6 +353,13 @@ export default function GamePage() {
           onClose={() => setShowOffline(false)}
         />
       )}
+
+      {/* Golden Spore random bonus */}
+      <GoldenSpore
+        sps={getTotalProduction(state).sporesPerSecond}
+        onCollect={handleGoldenSpore}
+        sfxEnabled={state.settings.sfxEnabled}
+      />
 
       {/* Achievement toasts */}
       <AchievementToast toasts={toasts} onDismiss={dismissToast} />

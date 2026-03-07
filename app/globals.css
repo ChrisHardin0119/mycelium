@@ -386,6 +386,35 @@ body {
   font-family: 'Share Tech Mono', monospace;
 }
 
+/* --- Buy Mode Toggle --- */
+.buy-mode-toggle {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+  justify-content: flex-end;
+}
+.buy-mode-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-family: 'Press Start 2P', cursive;
+  font-size: 8px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.buy-mode-btn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+.buy-mode-btn.active {
+  background: var(--cyan);
+  color: var(--bg-dark);
+  border-color: var(--cyan);
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+}
+
 .building-scroll, .upgrade-scroll, .prestige-scroll, .stats-scroll {
   display: flex;
   flex-direction: column;
@@ -1013,6 +1042,65 @@ body {
 
 @keyframes blink {
   50% { opacity: 0; }
+}
+
+/* --- Golden Spore (Random Bonus) --- */
+.golden-spore {
+  position: fixed;
+  z-index: 500;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.golden-spore.floating {
+  animation: golden-float 2s ease-in-out infinite, golden-glow 1s ease-in-out infinite alternate;
+}
+.golden-spore.collected {
+  animation: golden-collect 1.5s ease-out forwards;
+  pointer-events: none;
+}
+.golden-spore-icon {
+  font-size: 36px;
+  filter: drop-shadow(0 0 12px gold) drop-shadow(0 0 24px rgba(255, 215, 0, 0.5));
+}
+.golden-spore-label {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 8px;
+  color: #ffd700;
+  text-shadow: 0 0 8px gold, 0 0 16px rgba(255, 215, 0, 0.5);
+  margin-top: 4px;
+  animation: golden-pulse 0.6s ease-in-out infinite alternate;
+}
+.golden-spore-bonus {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+  color: #ffd700;
+  text-shadow: 0 0 8px gold;
+  margin-top: 4px;
+  animation: golden-bonus-rise 1.5s ease-out forwards;
+}
+@keyframes golden-float {
+  0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+  50% { transform: translate(-50%, -50%) translateY(-12px); }
+}
+@keyframes golden-glow {
+  from { filter: drop-shadow(0 0 8px gold); }
+  to { filter: drop-shadow(0 0 20px gold) drop-shadow(0 0 30px rgba(255, 215, 0, 0.6)); }
+}
+@keyframes golden-pulse {
+  from { opacity: 0.7; }
+  to { opacity: 1; }
+}
+@keyframes golden-collect {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(2) translateY(-40px); opacity: 0; }
+}
+@keyframes golden-bonus-rise {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-20px); opacity: 0; }
 }
 
 /* --- Achievement Toasts --- */
