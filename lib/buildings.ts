@@ -74,7 +74,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     description: 'Long-range hyphal highways that move resources across the network.',
     flavor: '"The Wood Wide Web runs on fungal fiber."',
     tier: 2,
-    baseCost: { spores: 5000, myceliumMass: 5 },
+    baseCost: { spores: 5000 },
     baseProduction: { sporesPerSecond: 60, myceliumMassPerSecond: 0.1 },
     costMultiplier: 1.15,
     unlockCondition: { type: 'spores', sporesEarned: 1500 },
