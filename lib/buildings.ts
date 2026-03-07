@@ -114,8 +114,8 @@ export const BUILDINGS: BuildingDefinition[] = [
     description: 'Aggressive growth fronts that claim new underground territory.',
     flavor: '"The map is not the territory — the territory is ours."',
     tier: 2,
-    baseCost: { spores: 1400000, myceliumMass: 100, substrateCoverage: 1 },
-    baseProduction: { sporesPerSecond: 1400, myceliumMassPerSecond: 0.5, substrateCoveragePerSecond: 0.001 },
+    baseCost: { spores: 1400000, myceliumMass: 100 },
+    baseProduction: { sporesPerSecond: 1400, myceliumMassPerSecond: 0.5, substrateCoveragePerSecond: 0.005 },
     costMultiplier: 1.15,
     unlockCondition: { type: 'spores', sporesEarned: 500000 },
     synergies: [
@@ -136,8 +136,8 @@ export const BUILDINGS: BuildingDefinition[] = [
     description: 'Mycorrhizal bonds with plant roots. They feed us sugars, we feed them minerals.',
     flavor: '"A deal 400 million years in the making."',
     tier: 3,
-    baseCost: { spores: 20000000, myceliumMass: 1000, substrateCoverage: 5 },
-    baseProduction: { sporesPerSecond: 7800, myceliumMassPerSecond: 2, substrateCoveragePerSecond: 0.005 },
+    baseCost: { spores: 20000000, myceliumMass: 1000, substrateCoverage: 3 },
+    baseProduction: { sporesPerSecond: 7800, myceliumMassPerSecond: 2, substrateCoveragePerSecond: 0.01 },
     costMultiplier: 1.15,
     unlockCondition: { type: 'spores', sporesEarned: 5000000 },
     synergies: [
