@@ -5,8 +5,9 @@
 import { GameState, Resources, OwnedBuilding, BuildingProduction } from './types';
 import { BUILDINGS, getBuildingDef, getBuildingCost } from './buildings';
 import { UPGRADES, getUpgradeDef } from './upgrades';
-import { getFBEMultiplier, getCosmicBloomMultiplier, LINEAGE_MUTATIONS, ASPECT_AWAKENINGS } from './prestige';
+import { getFBEMultiplier, getCosmicBloomMultiplier, LINEAGE_MUTATIONS, ASPECT_AWAKENINGS } from './sporulation';
 import { getMilestoneMultiplier } from './milestones';
+import { getAchievementTrackMultiplier } from './achievementBonuses';
 
 // --- Calculate per-second production for a single building ---
 function getBuildingProductionRate(
@@ -91,7 +92,14 @@ function getBuildingProductionRate(
   // AdCap-style milestone multiplier (based on how many you own)
   const milestoneMultiplier = getMilestoneMultiplier(buildingId, count);
 
-  const totalMult = buildingMultiplier * allMultiplier * synergyMultiplier * mutationMultiplier * fbeMultiplier * cosmicMultiplier * milestoneMultiplier;
+  // Achievement bonus (production track)
+  const achievementProdMult = getAchievementTrackMultiplier('production', state.unlockedAchievements);
+
+  // Achievement bonus (synergy track boosts synergy multiplier)
+  const achievementSynergyMult = getAchievementTrackMultiplier('synergy', state.unlockedAchievements);
+  const boostedSynergyMultiplier = 1 + (synergyMultiplier - 1) * achievementSynergyMult;
+
+  const totalMult = buildingMultiplier * allMultiplier * boostedSynergyMultiplier * mutationMultiplier * fbeMultiplier * cosmicMultiplier * milestoneMultiplier * achievementProdMult;
 
   sps *= totalMult;
   mps *= totalMult;
@@ -148,6 +156,9 @@ export function getClickValue(state: GameState): number {
 
   // FBE bonus applies to clicks too
   base *= getFBEMultiplier(state.prestige.totalFBE);
+
+  // Achievement click bonus
+  base *= getAchievementTrackMultiplier('click', state.unlockedAchievements);
 
   // Also add 5% of SPS per click (makes clicking always feel worthwhile)
   const production = getTotalProduction(state);
@@ -220,11 +231,12 @@ export function purchaseBuilding(state: GameState, buildingId: string): GameStat
   const owned = state.buildings.find(b => b.id === buildingId)?.count || 0;
   const cost = getBuildingCost(def, owned);
 
-  // Apply cost reduction from aspect
+  // Apply cost reduction from aspect + achievement cost track
   let costMult = 1;
   if (state.prestige.aspectAwakenings.includes('aspect_cheap_buildings')) {
-    costMult = 0.9;
+    costMult *= 0.9;
   }
+  costMult *= getAchievementTrackMultiplier('cost', state.unlockedAchievements);
 
   const finalSporeCost = cost.spores * costMult;
   const finalMassCost = cost.myceliumMass * costMult;

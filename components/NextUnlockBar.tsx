@@ -45,7 +45,7 @@ export default function NextUnlockBar({ state }: NextUnlockBarProps) {
     case 'prestige': {
       const needed = cond.prestigeCount || 0;
       progress = Math.min(1, state.prestige.timesPrestiged / needed);
-      label = `${state.prestige.timesPrestiged} / ${needed} Fruiting Cycles`;
+      label = `${state.prestige.timesPrestiged} / ${needed} Sporulations`;
       break;
     }
     default:

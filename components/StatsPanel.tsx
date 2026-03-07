@@ -69,11 +69,11 @@ export default function StatsPanel({ state }: StatsPanelProps) {
           </div>
         </div>
 
-        {/* Prestige Stats */}
+        {/* Sporulation Stats */}
         <div className="stats-section">
-          <div className="stats-section-title">Prestige</div>
+          <div className="stats-section-title">Sporulation</div>
           <div className="stat-row">
-            <span>Fruiting Cycles</span>
+            <span>Sporulations</span>
             <span className="glow-amber">{state.prestige.timesPrestiged}</span>
           </div>
           <div className="stat-row">
@@ -90,7 +90,7 @@ export default function StatsPanel({ state }: StatsPanelProps) {
           </div>
           {state.stats.fastestPrestige !== null && (
             <div className="stat-row">
-              <span>Fastest prestige</span>
+              <span>Fastest sporulation</span>
               <span>{formatTime(state.stats.fastestPrestige)}</span>
             </div>
           )}

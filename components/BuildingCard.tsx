@@ -8,7 +8,7 @@ import { getBuildingCost } from '@/lib/buildings';
 import { formatNumber } from '@/lib/formatNumber';
 import { getNextMilestone, getMilestoneMultiplier } from '@/lib/milestones';
 
-type BuyMode = 1 | 10 | 'max';
+type BuyMode = 1 | 5 | 10 | 100 | 'max';
 
 interface BuildingCardProps {
   def: BuildingDefinition;
@@ -77,16 +77,14 @@ export default function BuildingCard({ def, owned, state, onPurchase, onPurchase
   let actualBuyCount: number;
   if (buyMode === 'max') {
     actualBuyCount = maxAffordable;
-  } else if (buyMode === 10) {
-    actualBuyCount = Math.min(10, maxAffordable);
   } else {
-    actualBuyCount = Math.min(1, maxAffordable);
+    actualBuyCount = Math.min(buyMode, maxAffordable);
   }
 
   const canAfford = actualBuyCount > 0;
 
   // Show cost for the displayed buy amount
-  const displayCount = buyMode === 'max' ? maxAffordable : (buyMode === 10 ? 10 : 1);
+  const displayCount = buyMode === 'max' ? maxAffordable : buyMode;
   const bulkCost = getBulkCost(def, owned, Math.min(displayCount, maxAffordable || 1), costMult);
   // For single buy, show exact next cost
   const singleCost = getBuildingCost(def, owned);
@@ -113,9 +111,9 @@ export default function BuildingCard({ def, owned, state, onPurchase, onPurchase
 
   const buyLabel = buyMode === 'max'
     ? `BUY ${maxAffordable}`
-    : buyMode === 10
-      ? `BUY 10`
-      : 'BUY';
+    : buyMode === 1
+      ? 'BUY'
+      : `BUY ${buyMode}`;
 
   return (
     <div

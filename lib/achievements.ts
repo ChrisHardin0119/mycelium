@@ -270,25 +270,25 @@ export const ACHIEVEMENTS: Achievement[] = [
     condition: { type: 'click_count', value: 1000 },
   },
 
-  // --- Prestige milestones ---
+  // --- Sporulation milestones ---
   {
     id: 'first_prestige',
-    name: 'Fruiting Cycle',
-    description: 'Prestige for the first time',
+    name: 'First Sporulation',
+    description: 'Sporulate for the first time',
     icon: '✨',
     condition: { type: 'prestige_count', value: 1 },
   },
   {
     id: 'prestige_3',
     name: 'Cycle Veteran',
-    description: 'Prestige 3 times',
+    description: 'Sporulate 3 times',
     icon: '🔄',
     condition: { type: 'prestige_count', value: 3 },
   },
   {
     id: 'prestige_5',
     name: 'Eternal Return',
-    description: 'Prestige 5 times',
+    description: 'Sporulate 5 times',
     icon: '♾️',
     condition: { type: 'prestige_count', value: 5 },
   },

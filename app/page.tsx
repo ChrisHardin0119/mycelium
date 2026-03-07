@@ -6,7 +6,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { GameState, GameSettings, Resources } from '@/lib/types';
 import { createInitialState, processClick, purchaseBuilding, purchaseUpgrade, getTotalProduction } from '@/lib/gameEngine';
-import { performPrestige, calculateFBEGain, LINEAGE_MUTATIONS, ASPECT_AWAKENINGS } from '@/lib/prestige';
+import { performSporulation, calculateFBEGain, LINEAGE_MUTATIONS, ASPECT_AWAKENINGS } from '@/lib/sporulation';
 import { loadGame, saveGame } from '@/lib/saveLoad';
 import { calculateOfflineGains } from '@/lib/gameEngine';
 import { useGameLoop } from '@/hooks/useGameLoop';
@@ -16,7 +16,7 @@ import { checkNewMilestones } from '@/lib/milestones';
 import GameHeader from '@/components/GameHeader';
 import BuildingList from '@/components/BuildingList';
 import UpgradePanel from '@/components/UpgradePanel';
-import PrestigePanel from '@/components/PrestigePanel';
+import SporulationPanel from '@/components/SporulationPanel';
 import StatsPanel from '@/components/StatsPanel';
 import OfflineGains from '@/components/OfflineGains';
 import MusicToggle from '@/components/MusicToggle';
@@ -26,8 +26,9 @@ import AchievementToast from '@/components/AchievementToast';
 import NextUnlockBar from '@/components/NextUnlockBar';
 import StickyResources from '@/components/StickyResources';
 import GoldenSpore from '@/components/GoldenSpore';
+import type { BuyMode } from '@/components/BuildingList';
 
-type Tab = 'buildings' | 'upgrades' | 'prestige' | 'stats';
+type Tab = 'buildings' | 'upgrades' | 'sporulation' | 'stats';
 
 export default function GamePage() {
   const [state, setState] = useState<GameState | null>(null);
@@ -37,6 +38,7 @@ export default function GamePage() {
   const [offlineData, setOfflineData] = useState<{ gains: Resources; seconds: number } | null>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [toasts, setToasts] = useState<{ id: string; icon: string; name: string; description: string }[]>([]);
+  const [buyMode, setBuyMode] = useState<BuyMode>(1);
   const achievementCheckRef = useRef(0);
 
   // Achievement checker — runs every ~500ms
@@ -169,13 +171,13 @@ export default function GamePage() {
     if (state?.settings.sfxEnabled) playSFX('upgrade');
   }, [state?.settings.sfxEnabled]);
 
-  const handlePrestige = useCallback(() => {
+  const handleSporulate = useCallback(() => {
     setState(prev => {
       if (!prev) return prev;
       const fbeGain = calculateFBEGain(prev.stats.totalSporesEarned);
       if (fbeGain <= 0) return prev;
       if (state?.settings.sfxEnabled) playSFX('prestige');
-      return performPrestige(prev);
+      return performSporulation(prev);
     });
   }, [state?.settings.sfxEnabled]);
 
@@ -309,7 +311,7 @@ export default function GamePage() {
           {([
             ['buildings', '🏗️', 'Build'],
             ['upgrades', '⬆️', 'Upgrade'],
-            ['prestige', '✨', 'Prestige'],
+            ['sporulation', '✨', 'Sporulate'],
             ['stats', '📊', 'Stats'],
           ] as [Tab, string, string][]).map(([tab, icon, label]) => (
             <button
@@ -327,15 +329,15 @@ export default function GamePage() {
       {/* Tab content */}
       <div className="tab-content">
         {activeTab === 'buildings' && (
-          <BuildingList state={state} onPurchase={handlePurchaseBuilding} onPurchaseMultiple={handlePurchaseMultiple} />
+          <BuildingList state={state} onPurchase={handlePurchaseBuilding} onPurchaseMultiple={handlePurchaseMultiple} buyMode={buyMode} onBuyModeChange={setBuyMode} />
         )}
         {activeTab === 'upgrades' && (
           <UpgradePanel state={state} onPurchase={handlePurchaseUpgrade} />
         )}
-        {activeTab === 'prestige' && (
-          <PrestigePanel
+        {activeTab === 'sporulation' && (
+          <SporulationPanel
             state={state}
-            onPrestige={handlePrestige}
+            onSporulate={handleSporulate}
             onBuyMutation={handleBuyMutation}
             onBuyAspect={handleBuyAspect}
           />
