@@ -12,11 +12,13 @@ import { calculateOfflineGains } from '@/lib/gameEngine';
 import { useGameLoop } from '@/hooks/useGameLoop';
 import { checkAchievements, getAchievementDef } from '@/lib/achievements';
 import { checkNewMilestones } from '@/lib/milestones';
+import { canPurchaseTalent, TALENTS } from '@/lib/talents';
 
 import GameHeader from '@/components/GameHeader';
 import BuildingList from '@/components/BuildingList';
 import UpgradePanel from '@/components/UpgradePanel';
 import SporulationPanel from '@/components/SporulationPanel';
+import TalentsPanel from '@/components/TalentsPanel';
 import StatsPanel from '@/components/StatsPanel';
 import OfflineGains from '@/components/OfflineGains';
 import MusicToggle from '@/components/MusicToggle';
@@ -28,7 +30,7 @@ import StickyResources from '@/components/StickyResources';
 import GoldenSpore from '@/components/GoldenSpore';
 import type { BuyMode } from '@/components/BuildingList';
 
-type Tab = 'buildings' | 'upgrades' | 'sporulation' | 'stats';
+type Tab = 'buildings' | 'upgrades' | 'talents' | 'sporulation' | 'stats';
 
 export default function GamePage() {
   const [state, setState] = useState<GameState | null>(null);
@@ -200,6 +202,24 @@ export default function GamePage() {
     if (state?.settings.sfxEnabled) playSFX('upgrade');
   }, [state?.settings.sfxEnabled]);
 
+  const handleBuyTalent = useCallback((talentId: string) => {
+    setState(prev => {
+      if (!prev) return prev;
+      if (!canPurchaseTalent(talentId, prev.prestige.talents, prev.prestige.currentFBE)) return prev;
+      const talent = TALENTS.find(t => t.id === talentId);
+      if (!talent) return prev;
+      return {
+        ...prev,
+        prestige: {
+          ...prev.prestige,
+          currentFBE: prev.prestige.currentFBE - talent.costFBE,
+          talents: [...prev.prestige.talents, talentId],
+        },
+      };
+    });
+    if (state?.settings.sfxEnabled) playSFX('upgrade');
+  }, [state?.settings.sfxEnabled]);
+
   const handleBuyAspect = useCallback((aspId: string) => {
     setState(prev => {
       if (!prev) return prev;
@@ -311,6 +331,7 @@ export default function GamePage() {
           {([
             ['buildings', '🏗️', 'Build'],
             ['upgrades', '⬆️', 'Upgrade'],
+            ['talents', '🧬', 'Talents'],
             ['sporulation', '✨', 'Sporulate'],
             ['stats', '📊', 'Stats'],
           ] as [Tab, string, string][]).map(([tab, icon, label]) => (
@@ -333,6 +354,9 @@ export default function GamePage() {
         )}
         {activeTab === 'upgrades' && (
           <UpgradePanel state={state} onPurchase={handlePurchaseUpgrade} />
+        )}
+        {activeTab === 'talents' && (
+          <TalentsPanel state={state} onBuyTalent={handleBuyTalent} />
         )}
         {activeTab === 'sporulation' && (
           <SporulationPanel

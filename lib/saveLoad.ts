@@ -31,7 +31,11 @@ export function loadGame(): { state: GameState; offlineSeconds: number } | null 
     // Version check — migrate if needed in the future
     if (saved.version !== SAVE_VERSION) {
       console.log('Save version mismatch, migrating...');
-      // For now, just use as-is. Add migration logic later if needed.
+    }
+
+    // Ensure new fields exist for backwards compatibility
+    if (!saved.prestige.talents) {
+      saved.prestige.talents = [];
     }
 
     // Calculate time away

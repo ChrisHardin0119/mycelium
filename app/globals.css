@@ -1317,6 +1317,299 @@ body {
 }
 
 /* --- Responsive --- */
+/* ============================================
+   TALENTS PANEL
+   ============================================ */
+
+.talents-panel {
+  padding: 12px;
+}
+
+.talents-header {
+  text-align: center;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: rgba(0, 255, 100, 0.05);
+  border: 1px solid rgba(0, 255, 100, 0.15);
+  border-radius: 8px;
+}
+
+.talents-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #00ff64;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  text-shadow: 0 0 8px rgba(0, 255, 100, 0.3);
+}
+
+.talents-icon {
+  margin-right: 8px;
+}
+
+.talents-fbe-display {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.fbe-label {
+  color: #aaa;
+  margin-right: 8px;
+}
+
+.fbe-value {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.talents-summary {
+  font-size: 12px;
+  color: #777;
+}
+
+/* Branch tabs */
+.branch-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+}
+
+.branch-tab {
+  flex: 1;
+  min-width: 70px;
+  padding: 8px 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #999;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  text-align: center;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.branch-tab:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ccc;
+}
+
+.branch-tab.active {
+  color: #fff;
+  border-color: rgba(0, 255, 100, 0.4);
+}
+
+.branch-tab.active.branch-growth {
+  background: rgba(0, 200, 100, 0.12);
+  border-color: rgba(0, 200, 100, 0.5);
+}
+.branch-tab.active.branch-efficiency {
+  background: rgba(0, 150, 255, 0.12);
+  border-color: rgba(0, 150, 255, 0.5);
+}
+.branch-tab.active.branch-automation {
+  background: rgba(255, 200, 0, 0.12);
+  border-color: rgba(255, 200, 0, 0.5);
+}
+.branch-tab.active.branch-mastery {
+  background: rgba(200, 50, 255, 0.12);
+  border-color: rgba(200, 50, 255, 0.5);
+}
+
+.branch-tab-icon {
+  font-size: 18px;
+}
+
+.branch-tab-name {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.branch-tab-count {
+  font-size: 10px;
+  background: rgba(0, 255, 100, 0.2);
+  color: #00ff64;
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+
+/* Branch description */
+.branch-desc {
+  text-align: center;
+  font-size: 12px;
+  color: #888;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.branch-desc-growth { color: #6fce8e; }
+.branch-desc-efficiency { color: #6fb5ce; }
+.branch-desc-automation { color: #ced06f; }
+.branch-desc-mastery { color: #b86fce; }
+
+/* Talent tiers */
+.talent-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.talent-tier {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tier-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #666;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.talent-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+/* Talent cards */
+.talent-card {
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.talent-card.can-afford {
+  border-color: rgba(0, 255, 100, 0.3);
+  background: rgba(0, 255, 100, 0.04);
+  cursor: pointer;
+}
+
+.talent-card.can-afford:hover {
+  border-color: rgba(0, 255, 100, 0.5);
+  background: rgba(0, 255, 100, 0.08);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 255, 100, 0.1);
+}
+
+.talent-card.maxed {
+  border-color: rgba(0, 200, 100, 0.25);
+  background: rgba(0, 200, 100, 0.06);
+  opacity: 0.85;
+}
+
+.talent-card.locked {
+  opacity: 0.4;
+  border-color: rgba(255, 100, 100, 0.15);
+}
+
+.talent-card.cannot-afford {
+  opacity: 0.6;
+}
+
+.talent-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.talent-card-icon {
+  font-size: 20px;
+}
+
+.talent-card-name {
+  font-size: 13px;
+  font-weight: bold;
+  color: #ddd;
+}
+
+.talent-card-desc {
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+/* Stack pips */
+.talent-stacks {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.stack-pip {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 255, 100, 0.3);
+  background: transparent;
+  transition: all 0.3s;
+}
+
+.stack-pip.filled {
+  background: #00ff64;
+  border-color: #00ff64;
+  box-shadow: 0 0 6px rgba(0, 255, 100, 0.4);
+}
+
+/* Prerequisites */
+.talent-prereq {
+  font-size: 10px;
+  color: #ff6666;
+  margin-bottom: 6px;
+}
+
+.talent-maxed {
+  font-size: 12px;
+  color: #00cc55;
+  font-weight: bold;
+  text-align: center;
+  padding: 4px;
+}
+
+.talent-buy-btn {
+  width: 100%;
+  padding: 6px 12px;
+  background: rgba(0, 255, 100, 0.1);
+  border: 1px solid rgba(0, 255, 100, 0.3);
+  border-radius: 4px;
+  color: #00ff64;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.talent-buy-btn:hover:not(:disabled) {
+  background: rgba(0, 255, 100, 0.2);
+  border-color: rgba(0, 255, 100, 0.5);
+}
+
+.talent-buy-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  color: #666;
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+}
+
 @media (max-width: 500px) {
   .game-container {
     max-width: 100%;

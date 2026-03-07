@@ -82,6 +82,7 @@ export interface PrestigeState {
   lineageMutations: string[]; // selected mutation IDs
   aspectAwakenings: string[]; // selected aspect IDs
   cosmicBloomLevel: number;
+  talents: string[]; // purchased talent IDs (repeatable = duplicates)
 }
 
 export interface LineageMutation {

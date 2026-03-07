@@ -8,6 +8,7 @@ import { UPGRADES, getUpgradeDef } from './upgrades';
 import { getFBEMultiplier, getCosmicBloomMultiplier, LINEAGE_MUTATIONS, ASPECT_AWAKENINGS } from './sporulation';
 import { getMilestoneMultiplier } from './milestones';
 import { getAchievementTrackMultiplier } from './achievementBonuses';
+import { getTalentMultiplier, getTalentAutoClicks, getTalentClickSPSPercent } from './talents';
 
 // --- Calculate per-second production for a single building ---
 function getBuildingProductionRate(
@@ -97,9 +98,18 @@ function getBuildingProductionRate(
 
   // Achievement bonus (synergy track boosts synergy multiplier)
   const achievementSynergyMult = getAchievementTrackMultiplier('synergy', state.unlockedAchievements);
-  const boostedSynergyMultiplier = 1 + (synergyMultiplier - 1) * achievementSynergyMult;
 
-  const totalMult = buildingMultiplier * allMultiplier * boostedSynergyMultiplier * mutationMultiplier * fbeMultiplier * cosmicMultiplier * milestoneMultiplier * achievementProdMult;
+  // Talent bonuses
+  const talentProdMult = getTalentMultiplier('production_mult', state.prestige.talents);
+  const talentBuildingMult = getTalentMultiplier('building_mult', state.prestige.talents, buildingId);
+  const talentAllBuildingMult = getTalentMultiplier('all_building_mult', state.prestige.talents);
+  const talentSynergyMult = getTalentMultiplier('synergy_mult', state.prestige.talents);
+
+  // Combine synergy boosts: achievement + talent
+  const combinedSynergyBoost = achievementSynergyMult * talentSynergyMult;
+  const boostedSynergyMultiplier = 1 + (synergyMultiplier - 1) * combinedSynergyBoost;
+
+  const totalMult = buildingMultiplier * allMultiplier * boostedSynergyMultiplier * mutationMultiplier * fbeMultiplier * cosmicMultiplier * milestoneMultiplier * achievementProdMult * talentProdMult * talentBuildingMult * talentAllBuildingMult;
 
   sps *= totalMult;
   mps *= totalMult;
@@ -160,9 +170,13 @@ export function getClickValue(state: GameState): number {
   // Achievement click bonus
   base *= getAchievementTrackMultiplier('click', state.unlockedAchievements);
 
-  // Also add 5% of SPS per click (makes clicking always feel worthwhile)
+  // Talent click bonus
+  base *= getTalentMultiplier('click_mult', state.prestige.talents);
+
+  // SPS per click (default 5%, talent can increase)
+  const clickSPSPercent = getTalentClickSPSPercent(state.prestige.talents);
   const production = getTotalProduction(state);
-  base += production.sporesPerSecond * 0.05;
+  base += production.sporesPerSecond * clickSPSPercent;
 
   return base;
 }
@@ -175,10 +189,15 @@ export function processTick(state: GameState, deltaSeconds: number): GameState {
   const massGain = (production.myceliumMassPerSecond || 0) * deltaSeconds;
   const coverageGain = (production.substrateCoveragePerSecond || 0) * deltaSeconds;
 
-  // Auto-click from aspect awakening
-  let autoClickGain = 0;
+  // Auto-click from aspect awakening + talents
+  let autoClicksPerSec = 0;
   if (state.prestige.aspectAwakenings.includes('aspect_auto_click')) {
-    autoClickGain = getClickValue(state) * 5 * deltaSeconds;
+    autoClicksPerSec += 5;
+  }
+  autoClicksPerSec += getTalentAutoClicks(state.prestige.talents);
+  let autoClickGain = 0;
+  if (autoClicksPerSec > 0) {
+    autoClickGain = getClickValue(state) * autoClicksPerSec * deltaSeconds;
   }
 
   const newSpores = state.resources.spores + sporeGain + autoClickGain;
@@ -231,12 +250,13 @@ export function purchaseBuilding(state: GameState, buildingId: string): GameStat
   const owned = state.buildings.find(b => b.id === buildingId)?.count || 0;
   const cost = getBuildingCost(def, owned);
 
-  // Apply cost reduction from aspect + achievement cost track
+  // Apply cost reduction from aspect + achievement cost track + talents
   let costMult = 1;
   if (state.prestige.aspectAwakenings.includes('aspect_cheap_buildings')) {
     costMult *= 0.9;
   }
   costMult *= getAchievementTrackMultiplier('cost', state.unlockedAchievements);
+  costMult *= getTalentMultiplier('cost_reduction', state.prestige.talents);
 
   const finalSporeCost = cost.spores * costMult;
   const finalMassCost = cost.myceliumMass * costMult;
@@ -297,9 +317,10 @@ export function purchaseUpgrade(state: GameState, upgradeId: string): GameState 
 
 // --- Calculate offline gains ---
 export function calculateOfflineGains(state: GameState, offlineSeconds: number): Resources {
-  // Offline production is 50% of normal rate (balances AFK vs active play)
+  // Offline production is 50% of normal rate (talents can increase this)
   const production = getTotalProduction(state);
-  const offlineRate = 0.5;
+  const baseOfflineRate = 0.5;
+  const offlineRate = baseOfflineRate * getTalentMultiplier('offline_mult', state.prestige.talents);
 
   return {
     spores: production.sporesPerSecond * offlineSeconds * offlineRate,
@@ -321,6 +342,7 @@ export function createInitialState(): GameState {
       lineageMutations: [],
       aspectAwakenings: [],
       cosmicBloomLevel: 0,
+      talents: [],
     },
     unlockedAchievements: [],
     stats: {

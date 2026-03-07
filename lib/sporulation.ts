@@ -4,6 +4,7 @@
 
 import { GameState, LineageMutation, AspectAwakening } from './types';
 import { getAchievementTrackMultiplier } from './achievementBonuses';
+import { getTalentMultiplier, getTalentStartingSpores } from './talents';
 
 // --- FBE (Fruiting Body Essence) Calculation ---
 // Based on total spores earned this run
@@ -147,7 +148,8 @@ export const ASPECT_AWAKENINGS: AspectAwakening[] = [
 // --- Sporulation Reset ---
 export function performSporulation(state: GameState): GameState {
   const sporulationMult = getAchievementTrackMultiplier('sporulation', state.unlockedAchievements);
-  const fbeGain = calculateFBEGain(state.stats.totalSporesEarned, sporulationMult);
+  const talentFBEMult = getTalentMultiplier('fbe_mult', state.prestige.talents);
+  const fbeGain = calculateFBEGain(state.stats.totalSporesEarned, sporulationMult * talentFBEMult);
   if (fbeGain <= 0) return state; // Can't sporulate yet
 
   const newPrestige = {
@@ -164,10 +166,13 @@ export function performSporulation(state: GameState): GameState {
     ? runTime
     : Math.min(state.stats.fastestPrestige, runTime);
 
+  // Starting spores from talents
+  const startingSpores = getTalentStartingSpores(state.prestige.talents);
+
   return {
     ...state,
     resources: {
-      spores: 0,
+      spores: startingSpores,
       myceliumMass: 0,
       substrateCoverage: state.resources.substrateCoverage, // coverage persists!
     },
