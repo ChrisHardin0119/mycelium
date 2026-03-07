@@ -132,7 +132,7 @@ export function getTotalProduction(state: GameState): BuildingProduction {
 
 // --- Calculate click value ---
 export function getClickValue(state: GameState): number {
-  let base = 1;
+  let base = 3;
 
   // Click multiplier from upgrades
   for (const upgradeId of state.purchasedUpgrades) {
@@ -145,9 +145,9 @@ export function getClickValue(state: GameState): number {
   // FBE bonus applies to clicks too
   base *= getFBEMultiplier(state.prestige.totalFBE);
 
-  // Also add 1% of SPS per click (makes clicking always feel worthwhile)
+  // Also add 5% of SPS per click (makes clicking always feel worthwhile)
   const production = getTotalProduction(state);
-  base += production.sporesPerSecond * 0.01;
+  base += production.sporesPerSecond * 0.05;
 
   return base;
 }

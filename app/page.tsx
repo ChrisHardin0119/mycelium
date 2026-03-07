@@ -3,13 +3,14 @@
 // MYCELIUM — Main Game Page
 // ============================================
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { GameState, GameSettings, Resources } from '@/lib/types';
-import { createInitialState, processClick, purchaseBuilding, purchaseUpgrade } from '@/lib/gameEngine';
+import { createInitialState, processClick, purchaseBuilding, purchaseUpgrade, getTotalProduction } from '@/lib/gameEngine';
 import { performPrestige, calculateFBEGain, LINEAGE_MUTATIONS, ASPECT_AWAKENINGS } from '@/lib/prestige';
 import { loadGame, saveGame } from '@/lib/saveLoad';
 import { calculateOfflineGains } from '@/lib/gameEngine';
 import { useGameLoop } from '@/hooks/useGameLoop';
+import { checkAchievements, getAchievementDef } from '@/lib/achievements';
 
 import GameHeader from '@/components/GameHeader';
 import BuildingList from '@/components/BuildingList';
@@ -20,6 +21,8 @@ import OfflineGains from '@/components/OfflineGains';
 import MusicToggle from '@/components/MusicToggle';
 import { playSFX } from '@/components/MusicToggle';
 import SettingsMenu from '@/components/SettingsMenu';
+import AchievementToast from '@/components/AchievementToast';
+import NextUnlockBar from '@/components/NextUnlockBar';
 
 type Tab = 'buildings' | 'upgrades' | 'prestige' | 'stats';
 
@@ -30,6 +33,42 @@ export default function GamePage() {
   const [showOffline, setShowOffline] = useState(false);
   const [offlineData, setOfflineData] = useState<{ gains: Resources; seconds: number } | null>(null);
   const [isPaused, setIsPaused] = useState(false);
+  const [toasts, setToasts] = useState<{ id: string; icon: string; name: string; description: string }[]>([]);
+  const achievementCheckRef = useRef(0);
+
+  // Achievement checker — runs every ~500ms
+  useEffect(() => {
+    if (!state) return;
+    const interval = setInterval(() => {
+      // Also update highestSPS live for achievement checking
+      const production = getTotalProduction(state);
+      const currentState = {
+        ...state,
+        stats: { ...state.stats, highestSPS: Math.max(state.stats.highestSPS, production.sporesPerSecond) },
+      };
+      const newIds = checkAchievements(currentState);
+      if (newIds.length > 0) {
+        // Add to unlocked list
+        setState(prev => {
+          if (!prev) return prev;
+          return { ...prev, unlockedAchievements: [...prev.unlockedAchievements, ...newIds] };
+        });
+        // Show toasts
+        const newToasts = newIds.map(id => {
+          const def = getAchievementDef(id);
+          return { id, icon: def?.icon || '🏆', name: def?.name || id, description: def?.description || '' };
+        });
+        setToasts(prev => [...prev, ...newToasts]);
+        // Play SFX
+        if (state.settings.sfxEnabled) playSFX('upgrade');
+      }
+    }, 500);
+    return () => clearInterval(interval);
+  }, [state]);
+
+  const dismissToast = useCallback((id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  }, []);
 
   // Load game on mount
   useEffect(() => {
@@ -190,6 +229,9 @@ export default function GamePage() {
       {/* Main game header - click area + resources */}
       <GameHeader state={state} onClick={handleClick} />
 
+      {/* Next unlock progress bar */}
+      <NextUnlockBar state={state} />
+
       {/* Tab navigation */}
       <div className="tab-bar">
         {([
@@ -238,6 +280,9 @@ export default function GamePage() {
           onClose={() => setShowOffline(false)}
         />
       )}
+
+      {/* Achievement toasts */}
+      <AchievementToast toasts={toasts} onDismiss={dismissToast} />
 
       {/* Settings menu */}
       {showSettings && (

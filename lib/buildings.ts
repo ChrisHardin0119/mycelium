@@ -12,8 +12,8 @@ export const BUILDINGS: BuildingDefinition[] = [
     description: 'Tiny fungal threads that break into fresh soil. The first step of every great network.',
     flavor: '"From a single spore, empires grow."',
     tier: 1,
-    baseCost: { spores: 10 },
-    baseProduction: { sporesPerSecond: 0.1 },
+    baseCost: { spores: 5 },
+    baseProduction: { sporesPerSecond: 0.5 },
     costMultiplier: 1.15,
     unlockCondition: { type: 'always' },
     synergies: [
@@ -32,10 +32,10 @@ export const BUILDINGS: BuildingDefinition[] = [
     description: 'Enzymes that dissolve dead plant material into usable nutrients.',
     flavor: '"One organism\'s death is another\'s feast."',
     tier: 1,
-    baseCost: { spores: 100 },
-    baseProduction: { sporesPerSecond: 1 },
+    baseCost: { spores: 40 },
+    baseProduction: { sporesPerSecond: 2 },
     costMultiplier: 1.15,
-    unlockCondition: { type: 'spores', sporesEarned: 50 },
+    unlockCondition: { type: 'spores', sporesEarned: 20 },
     synergies: [
       {
         targetBuildingId: 'enzyme_specialist',
@@ -52,10 +52,10 @@ export const BUILDINGS: BuildingDefinition[] = [
     description: 'Secretes acids that soften rock and release trapped minerals.',
     flavor: '"Even stone yields to patience."',
     tier: 1,
-    baseCost: { spores: 1100 },
-    baseProduction: { sporesPerSecond: 8 },
+    baseCost: { spores: 300 },
+    baseProduction: { sporesPerSecond: 12 },
     costMultiplier: 1.15,
-    unlockCondition: { type: 'spores', sporesEarned: 500 },
+    unlockCondition: { type: 'spores', sporesEarned: 100 },
     synergies: [
       {
         targetBuildingId: 'territory_expander',
@@ -74,10 +74,10 @@ export const BUILDINGS: BuildingDefinition[] = [
     description: 'Long-range hyphal highways that move resources across the network.',
     flavor: '"The Wood Wide Web runs on fungal fiber."',
     tier: 2,
-    baseCost: { spores: 12000, myceliumMass: 5 },
-    baseProduction: { sporesPerSecond: 47, myceliumMassPerSecond: 0.1 },
+    baseCost: { spores: 5000, myceliumMass: 5 },
+    baseProduction: { sporesPerSecond: 60, myceliumMassPerSecond: 0.1 },
     costMultiplier: 1.15,
-    unlockCondition: { type: 'spores', sporesEarned: 5000 },
+    unlockCondition: { type: 'spores', sporesEarned: 1500 },
     synergies: [
       {
         targetBuildingId: 'plant_partner',

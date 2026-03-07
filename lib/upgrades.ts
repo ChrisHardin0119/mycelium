@@ -10,9 +10,9 @@ export const UPGRADES: UpgradeDefinition[] = [
     id: 'stronger_roots',
     name: 'Stronger Roots',
     description: 'Root Colonizers produce 2x more spores.',
-    cost: { spores: 100 },
+    cost: { spores: 50 },
     effect: { type: 'multiply_building', targetBuildingId: 'root_colonizer', value: 2 },
-    unlockCondition: { type: 'building', buildingId: 'root_colonizer', buildingCount: 10 },
+    unlockCondition: { type: 'building', buildingId: 'root_colonizer', buildingCount: 5 },
     icon: '💪',
     tier: 1
   },
@@ -50,9 +50,9 @@ export const UPGRADES: UpgradeDefinition[] = [
     id: 'click_boost_1',
     name: 'Thicker Hyphae',
     description: 'Clicking produces 2x more spores.',
-    cost: { spores: 500 },
+    cost: { spores: 200 },
     effect: { type: 'multiply_click', value: 2 },
-    unlockCondition: { type: 'spores', sporesEarned: 200 },
+    unlockCondition: { type: 'spores', sporesEarned: 75 },
     icon: '👆',
     tier: 1
   },
