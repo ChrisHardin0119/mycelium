@@ -269,10 +269,67 @@ body {
   text-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
 }
 
+/* --- Sticky Nav Wrapper --- */
+.sticky-nav-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-dark);
+  border-bottom: 1px solid var(--border);
+}
+
+/* --- Sticky Resource Bar --- */
+.sticky-resources {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px;
+  background: rgba(10, 10, 10, 0.95);
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+  min-height: 32px;
+  backdrop-filter: blur(8px);
+}
+.sticky-spores {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.sticky-spore-count {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: var(--cyan);
+  text-shadow: 0 0 6px rgba(0, 212, 255, 0.3);
+}
+.sticky-spore-label {
+  font-size: 9px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.sticky-sps {
+  font-size: 10px;
+  color: var(--green);
+}
+.sticky-secondary {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.sticky-pill {
+  font-size: 10px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.sticky-pill.mass { color: var(--green); }
+.sticky-pill.coverage { color: var(--purple); }
+.sticky-pill.fbe { color: var(--amber); }
+
 /* --- Tab Bar --- */
 .tab-bar {
   display: flex;
-  border-bottom: 1px solid var(--border);
   border-top: 1px solid var(--border);
   background: var(--bg-card);
 }

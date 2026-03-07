@@ -23,6 +23,7 @@ import { playSFX } from '@/components/MusicToggle';
 import SettingsMenu from '@/components/SettingsMenu';
 import AchievementToast from '@/components/AchievementToast';
 import NextUnlockBar from '@/components/NextUnlockBar';
+import StickyResources from '@/components/StickyResources';
 
 type Tab = 'buildings' | 'upgrades' | 'prestige' | 'stats';
 
@@ -232,23 +233,26 @@ export default function GamePage() {
       {/* Next unlock progress bar */}
       <NextUnlockBar state={state} />
 
-      {/* Tab navigation */}
-      <div className="tab-bar">
-        {([
-          ['buildings', '🏗️', 'Build'],
-          ['upgrades', '⬆️', 'Upgrade'],
-          ['prestige', '✨', 'Prestige'],
-          ['stats', '📊', 'Stats'],
-        ] as [Tab, string, string][]).map(([tab, icon, label]) => (
-          <button
-            key={tab}
-            className={`tab-button ${activeTab === tab ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab)}
-          >
-            <span className="tab-icon">{icon}</span>
-            <span className="tab-label">{label}</span>
-          </button>
-        ))}
+      {/* Sticky resource bar + tab navigation */}
+      <div className="sticky-nav-wrapper">
+        <StickyResources state={state} />
+        <div className="tab-bar">
+          {([
+            ['buildings', '🏗️', 'Build'],
+            ['upgrades', '⬆️', 'Upgrade'],
+            ['prestige', '✨', 'Prestige'],
+            ['stats', '📊', 'Stats'],
+          ] as [Tab, string, string][]).map(([tab, icon, label]) => (
+            <button
+              key={tab}
+              className={`tab-button ${activeTab === tab ? 'active' : ''}`}
+              onClick={() => setActiveTab(tab)}
+            >
+              <span className="tab-icon">{icon}</span>
+              <span className="tab-label">{label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Tab content */}
