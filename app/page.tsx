@@ -11,6 +11,7 @@ import { loadGame, saveGame } from '@/lib/saveLoad';
 import { calculateOfflineGains } from '@/lib/gameEngine';
 import { useGameLoop } from '@/hooks/useGameLoop';
 import { checkAchievements, getAchievementDef } from '@/lib/achievements';
+import { checkNewMilestones } from '@/lib/milestones';
 
 import GameHeader from '@/components/GameHeader';
 import BuildingList from '@/components/BuildingList';
@@ -104,8 +105,25 @@ export default function GamePage() {
   const handlePurchaseBuilding = useCallback((buildingId: string) => {
     setState(prev => {
       if (!prev) return prev;
+      const oldCount = prev.buildings.find(b => b.id === buildingId)?.count || 0;
       const result = purchaseBuilding(prev, buildingId);
-      return result || prev;
+      if (!result) return prev;
+      const newCount = result.buildings.find(b => b.id === buildingId)?.count || 0;
+
+      // Check for milestone hits
+      const newMilestones = checkNewMilestones(buildingId, oldCount, newCount);
+      if (newMilestones.length > 0) {
+        const milestoneToasts = newMilestones.map(m => ({
+          id: `milestone_${m.buildingId}_${m.count}`,
+          icon: m.icon,
+          name: `MILESTONE: ${m.name}`,
+          description: `x${m.multiplier} profit bonus!`,
+        }));
+        setToasts(t => [...t, ...milestoneToasts]);
+        if (prev.settings.sfxEnabled) playSFX('upgrade');
+      }
+
+      return result;
     });
     if (state?.settings.sfxEnabled) playSFX('purchase');
   }, [state?.settings.sfxEnabled]);

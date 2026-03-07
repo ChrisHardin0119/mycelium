@@ -6,6 +6,7 @@ import { GameState, Resources, OwnedBuilding, BuildingProduction } from './types
 import { BUILDINGS, getBuildingDef, getBuildingCost } from './buildings';
 import { UPGRADES, getUpgradeDef } from './upgrades';
 import { getFBEMultiplier, getCosmicBloomMultiplier, LINEAGE_MUTATIONS, ASPECT_AWAKENINGS } from './prestige';
+import { getMilestoneMultiplier } from './milestones';
 
 // --- Calculate per-second production for a single building ---
 function getBuildingProductionRate(
@@ -87,7 +88,10 @@ function getBuildingProductionRate(
   // Cosmic bloom
   const cosmicMultiplier = getCosmicBloomMultiplier(state.prestige.cosmicBloomLevel);
 
-  const totalMult = buildingMultiplier * allMultiplier * synergyMultiplier * mutationMultiplier * fbeMultiplier * cosmicMultiplier;
+  // AdCap-style milestone multiplier (based on how many you own)
+  const milestoneMultiplier = getMilestoneMultiplier(buildingId, count);
+
+  const totalMult = buildingMultiplier * allMultiplier * synergyMultiplier * mutationMultiplier * fbeMultiplier * cosmicMultiplier * milestoneMultiplier;
 
   sps *= totalMult;
   mps *= totalMult;

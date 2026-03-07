@@ -6,6 +6,7 @@
 import { BuildingDefinition, GameState } from '@/lib/types';
 import { getBuildingCost } from '@/lib/buildings';
 import { formatNumber } from '@/lib/formatNumber';
+import { getNextMilestone, getMilestoneMultiplier } from '@/lib/milestones';
 
 interface BuildingCardProps {
   def: BuildingDefinition;
@@ -17,6 +18,8 @@ interface BuildingCardProps {
 export default function BuildingCard({ def, owned, state, onPurchase }: BuildingCardProps) {
   const cost = getBuildingCost(def, owned);
   const notation = state.settings.notation;
+  const nextMilestone = getNextMilestone(def.id, owned);
+  const currentMilestoneMult = getMilestoneMultiplier(def.id, owned);
 
   // Apply cost reduction from aspect
   let costMult = 1;
@@ -91,6 +94,35 @@ export default function BuildingCard({ def, owned, state, onPurchase }: Building
           <span> | +{formatNumber(def.baseProduction.myceliumMassPerSecond, notation)} Mass/s</span>
         )}
       </div>
+
+      {/* Milestone progress (AdCap-style) */}
+      {owned > 0 && (
+        <div className="milestone-section">
+          {currentMilestoneMult > 1 && (
+            <span className="milestone-current" style={{ color: tierColor }}>
+              ⚡ x{currentMilestoneMult.toLocaleString()} bonus
+            </span>
+          )}
+          {nextMilestone ? (
+            <div className="milestone-next">
+              <div className="milestone-next-label">
+                Next: {owned}/{nextMilestone.count} → {nextMilestone.label}
+              </div>
+              <div className="milestone-bar-track">
+                <div
+                  className="milestone-bar-fill"
+                  style={{
+                    width: `${Math.min(100, (owned / nextMilestone.count) * 100)}%`,
+                    backgroundColor: tierColor,
+                  }}
+                />
+              </div>
+            </div>
+          ) : (
+            <span className="milestone-maxed">🏆 ALL MILESTONES REACHED</span>
+          )}
+        </div>
+      )}
     </div>
   );
 }

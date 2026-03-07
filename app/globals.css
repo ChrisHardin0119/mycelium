@@ -498,6 +498,51 @@ body {
   margin-top: 4px;
 }
 
+/* --- Milestone Progress (AdCap-style) --- */
+.milestone-section {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+}
+.milestone-current {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 9px;
+  white-space: nowrap;
+  text-shadow: 0 0 6px currentColor;
+}
+.milestone-next {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.milestone-next-label {
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+.milestone-bar-track {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.milestone-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 6px currentColor;
+}
+.milestone-maxed {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 8px;
+  color: var(--amber);
+  text-shadow: 0 0 8px var(--amber);
+}
+
 /* --- Upgrade Cards --- */
 .upgrade-card {
   display: flex;

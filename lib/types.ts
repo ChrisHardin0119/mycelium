@@ -165,5 +165,14 @@ export interface Notification {
   timestamp: number;
 }
 
+// --- Milestones (AdCap-style) ---
+export interface Milestone {
+  buildingId: string;
+  count: number;       // how many you need to own
+  multiplier: number;  // profit multiplier (e.g., 2 = x2)
+  name: string;
+  icon: string;
+}
+
 // --- Save format version ---
 export const SAVE_VERSION = 1;
