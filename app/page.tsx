@@ -13,6 +13,7 @@ import { useGameLoop } from '@/hooks/useGameLoop';
 import { checkAchievements, getAchievementDef } from '@/lib/achievements';
 import { checkNewMilestones } from '@/lib/milestones';
 import { canPurchaseTalent, TALENTS } from '@/lib/talents';
+import { checkHiddenAchievements, getHiddenAchievementDef, getHiddenAchievementBonus, HiddenCheckContext } from '@/lib/hiddenAchievements';
 
 import GameHeader from '@/components/GameHeader';
 import BuildingList from '@/components/BuildingList';
@@ -55,19 +56,59 @@ export default function GamePage() {
       };
       const newIds = checkAchievements(currentState);
       if (newIds.length > 0) {
-        // Add to unlocked list
         setState(prev => {
           if (!prev) return prev;
           return { ...prev, unlockedAchievements: [...prev.unlockedAchievements, ...newIds] };
         });
-        // Show toasts
         const newToasts = newIds.map(id => {
           const def = getAchievementDef(id);
           return { id, icon: def?.icon || '🏆', name: def?.name || id, description: def?.description || '' };
         });
         setToasts(prev => [...prev, ...newToasts]);
-        // Play SFX
         if (state.settings.sfxEnabled) playSFX('upgrade');
+      }
+
+      // Check hidden achievements
+      const hiddenCtx: HiddenCheckContext = {
+        totalClicks: state.stats.totalClicks,
+        totalSporesEarned: state.stats.totalSporesEarned,
+        totalTimePlayed: state.stats.totalTimePlayed,
+        totalBuildingsPurchased: state.stats.totalBuildingsPurchased,
+        timesPrestiged: state.prestige.timesPrestiged,
+        totalGoldenSporesCollected: state.stats.totalGoldenSporesCollected,
+        totalSaves: state.stats.totalSaves,
+        musicEnabled: state.settings.musicEnabled,
+        sfxEnabled: state.settings.sfxEnabled,
+        currentSpores: state.resources.spores,
+        currentMass: state.resources.myceliumMass,
+        currentCoverage: state.resources.substrateCoverage,
+        highestSPS: state.stats.highestSPS,
+        buildings: state.buildings,
+        purchasedUpgrades: state.purchasedUpgrades,
+        unlockedAchievements: state.unlockedAchievements,
+        totalFBE: state.prestige.totalFBE,
+        talentCount: state.prestige.talents.length,
+        clicksThisSession: state.stats.totalClicks,
+        fastestPrestige: state.stats.fastestPrestige,
+        hasResetGame: false,
+      };
+      const hiddenIds = checkHiddenAchievements(hiddenCtx, state.unlockedHiddenAchievements);
+      if (hiddenIds.length > 0) {
+        setState(prev => {
+          if (!prev) return prev;
+          return { ...prev, unlockedHiddenAchievements: [...prev.unlockedHiddenAchievements, ...hiddenIds] };
+        });
+        const hiddenToasts = hiddenIds.map(id => {
+          const def = getHiddenAchievementDef(id);
+          return {
+            id: `hidden_${id}`,
+            icon: def?.icon || '🔮',
+            name: `SECRET: ${def?.name || id}`,
+            description: def?.bonus.label || '',
+          };
+        });
+        setToasts(prev => [...prev, ...hiddenToasts]);
+        if (state.settings.sfxEnabled) playSFX('prestige');
       }
     }, 500);
     return () => clearInterval(interval);
@@ -245,7 +286,11 @@ export default function GamePage() {
       return {
         ...prev,
         resources: { ...prev.resources, spores: prev.resources.spores + bonus },
-        stats: { ...prev.stats, totalSporesEarned: prev.stats.totalSporesEarned + bonus },
+        stats: {
+          ...prev.stats,
+          totalSporesEarned: prev.stats.totalSporesEarned + bonus,
+          totalGoldenSporesCollected: prev.stats.totalGoldenSporesCollected + 1,
+        },
       };
     });
     // Show a toast
@@ -314,7 +359,10 @@ export default function GamePage() {
             onToggle={() => handleUpdateSettings({ musicEnabled: !state.settings.musicEnabled })}
           />
           <button className="settings-btn" onClick={() => setShowSettings(true)}>⚙️</button>
-          <button className="save-btn" onClick={() => { saveGame(state); }}>💾</button>
+          <button className="save-btn" onClick={() => {
+              setState(prev => prev ? { ...prev, stats: { ...prev.stats, totalSaves: prev.stats.totalSaves + 1 } } : prev);
+              saveGame({ ...state, stats: { ...state.stats, totalSaves: state.stats.totalSaves + 1 } });
+            }}>💾</button>
         </div>
       </div>
 
@@ -385,6 +433,7 @@ export default function GamePage() {
         sps={getTotalProduction(state).sporesPerSecond}
         onCollect={handleGoldenSpore}
         sfxEnabled={state.settings.sfxEnabled}
+        goldenMultiplier={getHiddenAchievementBonus('golden_spore_mult', state.unlockedHiddenAchievements)}
       />
 
       {/* Achievement toasts */}

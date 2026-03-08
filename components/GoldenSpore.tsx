@@ -11,9 +11,10 @@ interface GoldenSporeProps {
   sps: number; // current spores per second
   onCollect: (bonus: number) => void;
   sfxEnabled: boolean;
+  goldenMultiplier?: number; // from hidden achievements
 }
 
-export default function GoldenSpore({ sps, onCollect, sfxEnabled }: GoldenSporeProps) {
+export default function GoldenSpore({ sps, onCollect, sfxEnabled, goldenMultiplier = 1 }: GoldenSporeProps) {
   const [visible, setVisible] = useState(false);
   const [position, setPosition] = useState({ x: 50, y: 50 });
   const [bonusSeconds, setBonusSeconds] = useState(0);
@@ -81,7 +82,7 @@ export default function GoldenSpore({ sps, onCollect, sfxEnabled }: GoldenSporeP
   const handleClick = useCallback(() => {
     if (!visible || collected) return;
 
-    const bonus = Math.max(50, sps * bonusSeconds);
+    const bonus = Math.max(50, sps * bonusSeconds) * goldenMultiplier;
     setCollectAmount(bonus);
     setCollected(true);
     onCollect(bonus);

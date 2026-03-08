@@ -37,6 +37,15 @@ export function loadGame(): { state: GameState; offlineSeconds: number } | null 
     if (!saved.prestige.talents) {
       saved.prestige.talents = [];
     }
+    if (!saved.unlockedHiddenAchievements) {
+      saved.unlockedHiddenAchievements = [];
+    }
+    if (saved.stats.totalGoldenSporesCollected === undefined) {
+      saved.stats.totalGoldenSporesCollected = 0;
+    }
+    if (saved.stats.totalSaves === undefined) {
+      saved.stats.totalSaves = 0;
+    }
 
     // Calculate time away
     const now = Date.now();

@@ -9,6 +9,7 @@ import { getFBEMultiplier, getCosmicBloomMultiplier, LINEAGE_MUTATIONS, ASPECT_A
 import { getMilestoneMultiplier } from './milestones';
 import { getAchievementTrackMultiplier } from './achievementBonuses';
 import { getTalentMultiplier, getTalentAutoClicks, getTalentClickSPSPercent } from './talents';
+import { getHiddenAchievementBonus } from './hiddenAchievements';
 
 // --- Calculate per-second production for a single building ---
 function getBuildingProductionRate(
@@ -109,11 +110,20 @@ function getBuildingProductionRate(
   const combinedSynergyBoost = achievementSynergyMult * talentSynergyMult;
   const boostedSynergyMultiplier = 1 + (synergyMultiplier - 1) * combinedSynergyBoost;
 
-  const totalMult = buildingMultiplier * allMultiplier * boostedSynergyMultiplier * mutationMultiplier * fbeMultiplier * cosmicMultiplier * milestoneMultiplier * achievementProdMult * talentProdMult * talentBuildingMult * talentAllBuildingMult;
+  // Hidden achievement bonuses
+  const hiddenProdMult = getHiddenAchievementBonus('production_mult', state.unlockedHiddenAchievements);
+  const hiddenMassMult = getHiddenAchievementBonus('mass_production', state.unlockedHiddenAchievements);
+  const hiddenCoverageMult = getHiddenAchievementBonus('coverage_production', state.unlockedHiddenAchievements);
+
+  const totalMult = buildingMultiplier * allMultiplier * boostedSynergyMultiplier * mutationMultiplier * fbeMultiplier * cosmicMultiplier * milestoneMultiplier * achievementProdMult * talentProdMult * talentBuildingMult * talentAllBuildingMult * hiddenProdMult;
 
   sps *= totalMult;
   mps *= totalMult;
   cps *= totalMult;
+
+  // Hidden achievement mass/coverage bonuses
+  mps *= hiddenMassMult;
+  cps *= hiddenCoverageMult;
 
   // Aspect awakening: mass converter
   if (state.prestige.aspectAwakenings.includes('aspect_mass_converter')) {
@@ -132,6 +142,42 @@ function getBuildingProductionRate(
   };
 }
 
+// --- Calculate total upkeep from all buildings ---
+function getTotalUpkeep(state: GameState): { massUpkeep: number; coverageDecay: number } {
+  let massUpkeep = 0;
+  let coverageDecay = 0;
+
+  for (const building of state.buildings) {
+    const def = getBuildingDef(building.id);
+    if (!def || building.count === 0) continue;
+    massUpkeep += (def.baseProduction.massUpkeepPerSecond || 0) * building.count;
+    coverageDecay += (def.baseProduction.coverageDecayPerSecond || 0) * building.count;
+  }
+
+  return { massUpkeep, coverageDecay };
+}
+
+// --- Resource penalty multipliers ---
+// Low mass = production penalty (kicks in below 50 mass)
+// Low coverage = severe throttle (kicks in below 50%)
+export function getResourcePenalties(state: GameState): { massPenalty: number; coveragePenalty: number } {
+  let massPenalty = 1;
+  if (state.resources.myceliumMass <= 0) {
+    massPenalty = 0.25; // 75% penalty at 0 mass
+  } else if (state.resources.myceliumMass < 50) {
+    massPenalty = 0.25 + 0.75 * (state.resources.myceliumMass / 50);
+  }
+
+  let coveragePenalty = 1;
+  if (state.resources.substrateCoverage < 10) {
+    coveragePenalty = 0.1 + 0.9 * (state.resources.substrateCoverage / 10);
+  } else if (state.resources.substrateCoverage < 50) {
+    coveragePenalty = 0.5 + 0.5 * ((state.resources.substrateCoverage - 10) / 40);
+  }
+
+  return { massPenalty, coveragePenalty };
+}
+
 // --- Calculate total production per second ---
 export function getTotalProduction(state: GameState): BuildingProduction {
   let totalSPS = 0;
@@ -144,6 +190,16 @@ export function getTotalProduction(state: GameState): BuildingProduction {
     totalMPS += (prod.myceliumMassPerSecond || 0);
     totalCPS += (prod.substrateCoveragePerSecond || 0);
   }
+
+  // Apply resource penalties
+  const { massPenalty, coveragePenalty } = getResourcePenalties(state);
+  const combinedPenalty = massPenalty * coveragePenalty;
+  totalSPS *= combinedPenalty;
+
+  // Subtract upkeep from net production
+  const { massUpkeep, coverageDecay } = getTotalUpkeep(state);
+  totalMPS -= massUpkeep;
+  totalCPS -= coverageDecay;
 
   return {
     sporesPerSecond: totalSPS,
@@ -173,6 +229,9 @@ export function getClickValue(state: GameState): number {
   // Talent click bonus
   base *= getTalentMultiplier('click_mult', state.prestige.talents);
 
+  // Hidden achievement click bonus
+  base *= getHiddenAchievementBonus('click_mult', state.unlockedHiddenAchievements);
+
   // SPS per click (default 5%, talent can increase)
   const clickSPSPercent = getTalentClickSPSPercent(state.prestige.talents);
   const production = getTotalProduction(state);
@@ -195,14 +254,15 @@ export function processTick(state: GameState, deltaSeconds: number): GameState {
     autoClicksPerSec += 5;
   }
   autoClicksPerSec += getTalentAutoClicks(state.prestige.talents);
+  autoClicksPerSec += getHiddenAchievementBonus('auto_clicks', state.unlockedHiddenAchievements);
   let autoClickGain = 0;
   if (autoClicksPerSec > 0) {
     autoClickGain = getClickValue(state) * autoClicksPerSec * deltaSeconds;
   }
 
   const newSpores = state.resources.spores + sporeGain + autoClickGain;
-  const newMass = state.resources.myceliumMass + massGain;
-  const newCoverage = Math.min(100, state.resources.substrateCoverage + coverageGain);
+  const newMass = Math.max(0, state.resources.myceliumMass + massGain); // Mass can drain to 0
+  const newCoverage = Math.max(0, Math.min(100, state.resources.substrateCoverage + coverageGain)); // Coverage 0-100
 
   const newTotalEarned = state.stats.totalSporesEarned + sporeGain + autoClickGain;
   const currentSPS = production.sporesPerSecond;
@@ -257,6 +317,7 @@ export function purchaseBuilding(state: GameState, buildingId: string): GameStat
   }
   costMult *= getAchievementTrackMultiplier('cost', state.unlockedAchievements);
   costMult *= getTalentMultiplier('cost_reduction', state.prestige.talents);
+  costMult *= getHiddenAchievementBonus('cost_reduction', state.unlockedHiddenAchievements);
 
   const finalSporeCost = cost.spores * costMult;
   const finalMassCost = cost.myceliumMass * costMult;
@@ -320,7 +381,7 @@ export function calculateOfflineGains(state: GameState, offlineSeconds: number):
   // Offline production is 50% of normal rate (talents can increase this)
   const production = getTotalProduction(state);
   const baseOfflineRate = 0.5;
-  const offlineRate = baseOfflineRate * getTalentMultiplier('offline_mult', state.prestige.talents);
+  const offlineRate = baseOfflineRate * getTalentMultiplier('offline_mult', state.prestige.talents) * getHiddenAchievementBonus('offline_mult', state.unlockedHiddenAchievements);
 
   return {
     spores: production.sporesPerSecond * offlineSeconds * offlineRate,
@@ -345,6 +406,7 @@ export function createInitialState(): GameState {
       talents: [],
     },
     unlockedAchievements: [],
+    unlockedHiddenAchievements: [],
     stats: {
       totalSporesEarned: 0,
       totalClicks: 0,
@@ -353,6 +415,8 @@ export function createInitialState(): GameState {
       highestSPS: 0,
       fastestPrestige: null,
       totalBuildingsPurchased: 0,
+      totalGoldenSporesCollected: 0,
+      totalSaves: 0,
     },
     settings: {
       musicEnabled: true,

@@ -75,7 +75,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     flavor: '"The Wood Wide Web runs on fungal fiber."',
     tier: 2,
     baseCost: { spores: 5000 },
-    baseProduction: { sporesPerSecond: 60, myceliumMassPerSecond: 0.1 },
+    baseProduction: { sporesPerSecond: 60, myceliumMassPerSecond: 0.1, massUpkeepPerSecond: 0.02 },
     costMultiplier: 1.15,
     unlockCondition: { type: 'spores', sporesEarned: 1500 },
     synergies: [
@@ -95,7 +95,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     flavor: '"Nature\'s lockpicks."',
     tier: 2,
     baseCost: { spores: 130000 },
-    baseProduction: { sporesPerSecond: 260 },
+    baseProduction: { sporesPerSecond: 260, massUpkeepPerSecond: 0.05 },
     costMultiplier: 1.15,
     unlockCondition: { type: 'spores', sporesEarned: 50000 },
     synergies: [
@@ -115,7 +115,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     flavor: '"The map is not the territory — the territory is ours."',
     tier: 2,
     baseCost: { spores: 1400000, myceliumMass: 100 },
-    baseProduction: { sporesPerSecond: 1400, myceliumMassPerSecond: 0.5, substrateCoveragePerSecond: 0.005 },
+    baseProduction: { sporesPerSecond: 1400, myceliumMassPerSecond: 0.5, substrateCoveragePerSecond: 0.005, massUpkeepPerSecond: 0.1, coverageDecayPerSecond: 0.001 },
     costMultiplier: 1.15,
     unlockCondition: { type: 'spores', sporesEarned: 500000 },
     synergies: [
@@ -137,7 +137,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     flavor: '"A deal 400 million years in the making."',
     tier: 3,
     baseCost: { spores: 20000000, myceliumMass: 1000, substrateCoverage: 3 },
-    baseProduction: { sporesPerSecond: 7800, myceliumMassPerSecond: 2, substrateCoveragePerSecond: 0.01 },
+    baseProduction: { sporesPerSecond: 7800, myceliumMassPerSecond: 2, substrateCoveragePerSecond: 0.01, massUpkeepPerSecond: 0.5, coverageDecayPerSecond: 0.003 },
     costMultiplier: 1.15,
     unlockCondition: { type: 'spores', sporesEarned: 5000000 },
     synergies: [
@@ -157,7 +157,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     flavor: '"Penicillin was just the opening salvo."',
     tier: 3,
     baseCost: { spores: 330000000 },
-    baseProduction: { sporesPerSecond: 44000, myceliumMassPerSecond: 5 },
+    baseProduction: { sporesPerSecond: 44000, myceliumMassPerSecond: 5, massUpkeepPerSecond: 1.2, coverageDecayPerSecond: 0.005 },
     costMultiplier: 1.15,
     unlockCondition: { type: 'spores', sporesEarned: 100000000 },
     synergies: [
@@ -177,7 +177,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     flavor: '"We are the recyclers. The circle closes through us."',
     tier: 3,
     baseCost: { spores: 5100000000, myceliumMass: 10000 },
-    baseProduction: { sporesPerSecond: 260000, myceliumMassPerSecond: 15, substrateCoveragePerSecond: 0.01 },
+    baseProduction: { sporesPerSecond: 260000, myceliumMassPerSecond: 15, substrateCoveragePerSecond: 0.01, massUpkeepPerSecond: 3.5, coverageDecayPerSecond: 0.008 },
     costMultiplier: 1.15,
     unlockCondition: { type: 'spores', sporesEarned: 1000000000 },
     synergies: [
@@ -199,7 +199,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     flavor: '"They see the mushroom. They do not see the miles beneath."',
     tier: 4,
     baseCost: { spores: 75000000000, myceliumMass: 100000 },
-    baseProduction: { sporesPerSecond: 1600000, myceliumMassPerSecond: 50, substrateCoveragePerSecond: 0.02 },
+    baseProduction: { sporesPerSecond: 1600000, myceliumMassPerSecond: 50, substrateCoveragePerSecond: 0.02, massUpkeepPerSecond: 10, coverageDecayPerSecond: 0.01 },
     costMultiplier: 1.15,
     unlockCondition: { type: 'prestige', prestigeCount: 1 },
     synergies: [
@@ -219,7 +219,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     flavor: '"We ride the breath of the world."',
     tier: 4,
     baseCost: { spores: 1000000000000, myceliumMass: 1000000, substrateCoverage: 25 },
-    baseProduction: { sporesPerSecond: 10000000, myceliumMassPerSecond: 200, substrateCoveragePerSecond: 0.05 },
+    baseProduction: { sporesPerSecond: 10000000, myceliumMassPerSecond: 200, substrateCoveragePerSecond: 0.05, massUpkeepPerSecond: 40, coverageDecayPerSecond: 0.02 },
     costMultiplier: 1.15,
     unlockCondition: { type: 'prestige', prestigeCount: 2 },
     synergies: [
@@ -239,7 +239,7 @@ export const BUILDINGS: BuildingDefinition[] = [
     flavor: '"The forest doesn\'t belong to us. The forest IS us."',
     tier: 4,
     baseCost: { spores: 100000000000000, myceliumMass: 50000000, substrateCoverage: 50 },
-    baseProduction: { sporesPerSecond: 65000000, myceliumMassPerSecond: 1000, substrateCoveragePerSecond: 0.1 },
+    baseProduction: { sporesPerSecond: 65000000, myceliumMassPerSecond: 1000, substrateCoveragePerSecond: 0.1, massUpkeepPerSecond: 150, coverageDecayPerSecond: 0.04 },
     costMultiplier: 1.15,
     unlockCondition: { type: 'prestige', prestigeCount: 3 },
     synergies: [

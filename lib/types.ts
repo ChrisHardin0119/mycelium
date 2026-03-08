@@ -34,6 +34,8 @@ export interface BuildingProduction {
   sporesPerSecond: number;
   myceliumMassPerSecond?: number;
   substrateCoveragePerSecond?: number;
+  massUpkeepPerSecond?: number; // mass consumed per second
+  coverageDecayPerSecond?: number; // coverage decay per second
 }
 
 export interface UnlockCondition {
@@ -124,6 +126,7 @@ export interface GameState {
   purchasedUpgrades: string[];
   prestige: PrestigeState;
   unlockedAchievements: string[];
+  unlockedHiddenAchievements: string[];
   stats: GameStats;
   settings: GameSettings;
   lastSaveTime: number;
@@ -139,6 +142,8 @@ export interface GameStats {
   highestSPS: number;
   fastestPrestige: number | null; // seconds
   totalBuildingsPurchased: number;
+  totalGoldenSporesCollected: number;
+  totalSaves: number;
 }
 
 export interface GameSettings {

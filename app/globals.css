@@ -576,6 +576,73 @@ body {
   text-shadow: 0 0 8px var(--amber);
 }
 
+/* --- Locked Buildings & Upgrades --- */
+.locked-building {
+  opacity: 0.45;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  background: rgba(255, 255, 255, 0.01);
+  cursor: default;
+}
+.locked-building:hover {
+  opacity: 0.6;
+  background: rgba(255, 255, 255, 0.02);
+}
+.locked-desc {
+  color: var(--text-dim);
+  font-style: italic;
+}
+.locked-requirement {
+  font-size: 10px;
+  color: #ff9944;
+  padding: 4px 8px;
+  background: rgba(255, 153, 68, 0.06);
+  border: 1px solid rgba(255, 153, 68, 0.15);
+  border-radius: 4px;
+  margin: 6px 0;
+}
+.locked-costs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  margin-top: 4px;
+}
+.locked-cost-label {
+  color: var(--text-dim);
+  font-size: 10px;
+}
+.locked-cost-value {
+  color: var(--text-secondary);
+}
+.locked-production {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  font-style: italic;
+}
+.locked-upgrade {
+  opacity: 0.4;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  background: rgba(255, 255, 255, 0.01);
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.locked-upgrade:hover {
+  opacity: 0.55;
+}
+.locked-divider {
+  text-align: center;
+  padding: 10px 0 6px;
+  margin-top: 8px;
+}
+.locked-divider-text {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
 /* --- Upgrade Cards --- */
 .upgrade-card {
   display: flex;
