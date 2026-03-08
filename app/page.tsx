@@ -22,6 +22,7 @@ import BuildingList from '@/components/BuildingList';
 import UpgradePanel from '@/components/UpgradePanel';
 import SporulationPanel from '@/components/SporulationPanel';
 import TalentsPanel from '@/components/TalentsPanel';
+import AchievementsPanel from '@/components/AchievementsPanel';
 import HiddenAchievementsPanel from '@/components/HiddenAchievementsPanel';
 import StatsPanel from '@/components/StatsPanel';
 import OfflineGains from '@/components/OfflineGains';
@@ -34,7 +35,7 @@ import StickyResources from '@/components/StickyResources';
 import GoldenSpore from '@/components/GoldenSpore';
 import type { BuyMode } from '@/components/BuildingList';
 
-type Tab = 'buildings' | 'upgrades' | 'talents' | 'strategies' | 'secrets' | 'sporulation' | 'stats';
+type Tab = 'buildings' | 'upgrades' | 'talents' | 'strategies' | 'achievements' | 'secrets' | 'sporulation' | 'stats';
 
 export default function GamePage() {
   const [state, setState] = useState<GameState | null>(null);
@@ -398,6 +399,7 @@ export default function GamePage() {
             ['upgrades', '⬆️', 'Upgrade'],
             ['talents', '🧬', 'Talents'],
             ['strategies', '⚔️', 'Strategy'],
+            ['achievements', '🏆', 'Achieve'],
             ['secrets', '🔮', 'Secrets'],
             ['sporulation', '✨', 'Sporulate'],
             ['stats', '📊', 'Stats'],
@@ -427,6 +429,9 @@ export default function GamePage() {
         )}
         {activeTab === 'strategies' && (
           <StrategyPanel state={state} onToggleStrategy={handleToggleStrategy} />
+        )}
+        {activeTab === 'achievements' && (
+          <AchievementsPanel state={state} />
         )}
         {activeTab === 'secrets' && (
           <HiddenAchievementsPanel state={state} />

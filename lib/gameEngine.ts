@@ -167,18 +167,33 @@ function getTotalUpkeep(state: GameState): { massUpkeep: number; coverageDecay: 
 // Low mass = production penalty (kicks in below 50 mass)
 // Low coverage = severe throttle (kicks in below 50%)
 export function getResourcePenalties(state: GameState): { massPenalty: number; coveragePenalty: number } {
+  // Don't penalize players who haven't unlocked mass/coverage yet
+  // (Tier 1 buildings don't produce mass or coverage, so penalty would be unfair)
+  const hasAnyMassBuilding = state.buildings.some(b => {
+    const d = getBuildingDef(b.id);
+    return d && (d.baseProduction.myceliumMassPerSecond || 0) > 0 && b.count > 0;
+  });
+  const hasAnyCoverageBuilding = state.buildings.some(b => {
+    const d = getBuildingDef(b.id);
+    return d && (d.baseProduction.substrateCoveragePerSecond || 0) > 0 && b.count > 0;
+  });
+
   let massPenalty = 1;
-  if (state.resources.myceliumMass <= 0) {
-    massPenalty = 0.25; // 75% penalty at 0 mass
-  } else if (state.resources.myceliumMass < 50) {
-    massPenalty = 0.25 + 0.75 * (state.resources.myceliumMass / 50);
+  if (hasAnyMassBuilding) {
+    if (state.resources.myceliumMass <= 0) {
+      massPenalty = 0.5; // 50% penalty at 0 mass (softened from 25%)
+    } else if (state.resources.myceliumMass < 50) {
+      massPenalty = 0.5 + 0.5 * (state.resources.myceliumMass / 50);
+    }
   }
 
   let coveragePenalty = 1;
-  if (state.resources.substrateCoverage < 10) {
-    coveragePenalty = 0.1 + 0.9 * (state.resources.substrateCoverage / 10);
-  } else if (state.resources.substrateCoverage < 50) {
-    coveragePenalty = 0.5 + 0.5 * ((state.resources.substrateCoverage - 10) / 40);
+  if (hasAnyCoverageBuilding) {
+    if (state.resources.substrateCoverage < 10) {
+      coveragePenalty = 0.5 + 0.5 * (state.resources.substrateCoverage / 10);
+    } else if (state.resources.substrateCoverage < 50) {
+      coveragePenalty = 0.75 + 0.25 * ((state.resources.substrateCoverage - 10) / 40);
+    }
   }
 
   return { massPenalty, coveragePenalty };

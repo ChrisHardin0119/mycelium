@@ -5,7 +5,7 @@
 
 import { BuildingDefinition, GameState } from '@/lib/types';
 import { getBuildingCost } from '@/lib/buildings';
-import { getCostMultiplier, getBuildingProductionRate } from '@/lib/gameEngine';
+import { getCostMultiplier, getBuildingProductionRate, getResourcePenalties } from '@/lib/gameEngine';
 import { formatNumber } from '@/lib/formatNumber';
 import { getNextMilestone, getMilestoneMultiplier } from '@/lib/milestones';
 
@@ -178,12 +178,21 @@ export default function BuildingCard({ def, owned, state, onPurchase, onPurchase
       <div className="building-production">
         {owned > 0 ? (
           <>
-            {/* Show actual production with all multipliers */}
+            {/* Show actual production with all multipliers + resource penalties */}
             {(() => {
               const prod = getBuildingProductionRate(def.id, owned, state);
+              const { massPenalty, coveragePenalty } = getResourcePenalties(state);
+              const combinedPenalty = massPenalty * coveragePenalty;
+              const actualSPS = prod.sporesPerSecond * combinedPenalty;
+              const hasPenalty = combinedPenalty < 0.99;
               return (
                 <>
-                  +{formatNumber(prod.sporesPerSecond, notation)} SPS
+                  +{formatNumber(actualSPS, notation)} SPS
+                  {hasPenalty && (
+                    <span className="penalty-indicator" title={`Resource penalty: ${(combinedPenalty * 100).toFixed(0)}% efficiency`}>
+                      {' '}⚠️ {(combinedPenalty * 100).toFixed(0)}%
+                    </span>
+                  )}
                   {(prod.myceliumMassPerSecond || 0) !== 0 && (
                     <span> | {(prod.myceliumMassPerSecond || 0) > 0 ? '+' : ''}{formatNumber(prod.myceliumMassPerSecond || 0, notation)} Mass/s</span>
                   )}
@@ -196,11 +205,26 @@ export default function BuildingCard({ def, owned, state, onPurchase, onPurchase
           </>
         ) : (
           <>
-            {/* Before purchase, show base rate */}
-            +{formatNumber(def.baseProduction.sporesPerSecond, notation)} SPS (base)
-            {def.baseProduction.myceliumMassPerSecond && (
-              <span> | +{formatNumber(def.baseProduction.myceliumMassPerSecond, notation)} Mass/s</span>
-            )}
+            {/* Before purchase, show base rate with penalty preview */}
+            {(() => {
+              const { massPenalty, coveragePenalty } = getResourcePenalties(state);
+              const combinedPenalty = massPenalty * coveragePenalty;
+              const actualBase = def.baseProduction.sporesPerSecond * combinedPenalty;
+              const hasPenalty = combinedPenalty < 0.99;
+              return (
+                <>
+                  +{formatNumber(actualBase, notation)} SPS
+                  {hasPenalty && (
+                    <span className="penalty-indicator" title={`Resource penalty: ${(combinedPenalty * 100).toFixed(0)}% efficiency`}>
+                      {' '}⚠️ {(combinedPenalty * 100).toFixed(0)}%
+                    </span>
+                  )}
+                  {def.baseProduction.myceliumMassPerSecond && (
+                    <span> | +{formatNumber(def.baseProduction.myceliumMassPerSecond, notation)} Mass/s</span>
+                  )}
+                </>
+              );
+            })()}
           </>
         )}
       </div>
