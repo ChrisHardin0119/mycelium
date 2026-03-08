@@ -1776,3 +1776,145 @@ body {
   font-weight: 600;
   margin-top: 2px;
 }
+
+/* ============================================
+   Strategy Panel
+   ============================================ */
+.strategy-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.strategy-intro {
+  font-size: 12px;
+  color: var(--text-dim);
+  padding: 8px 12px;
+  line-height: 1.5;
+}
+
+.strategy-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.strategy-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.strategy-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--purple);
+}
+
+.strategy-card.active {
+  border-color: var(--purple);
+  box-shadow: var(--glow-purple);
+  background: rgba(168, 85, 247, 0.08);
+}
+
+.strategy-card.locked {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.strategy-card.locked:hover {
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+
+.strategy-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.strategy-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+  width: 36px;
+  text-align: center;
+}
+
+.strategy-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.strategy-name {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.strategy-card.active .strategy-name {
+  color: var(--purple);
+}
+
+.strategy-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.strategy-toggle {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+}
+
+.strategy-toggle.on {
+  background: rgba(168, 85, 247, 0.25);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+.strategy-toggle.off {
+  background: rgba(100, 116, 139, 0.15);
+  color: var(--text-dim);
+  border: 1px solid rgba(100, 116, 139, 0.2);
+}
+
+.strategy-effects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.strategy-effect {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.strategy-effect.buff {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--green);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.strategy-effect.debuff {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--red);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.strategy-flavor {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-top: 6px;
+  opacity: 0.7;
+}

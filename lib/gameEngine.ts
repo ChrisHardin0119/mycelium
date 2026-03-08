@@ -10,9 +10,10 @@ import { getMilestoneMultiplier } from './milestones';
 import { getAchievementTrackMultiplier } from './achievementBonuses';
 import { getTalentMultiplier, getTalentAutoClicks, getTalentClickSPSPercent } from './talents';
 import { getHiddenAchievementBonus } from './hiddenAchievements';
+import { getStrategyMultiplier } from './strategies';
 
 // --- Calculate per-second production for a single building ---
-function getBuildingProductionRate(
+export function getBuildingProductionRate(
   buildingId: string,
   count: number,
   state: GameState
@@ -115,15 +116,20 @@ function getBuildingProductionRate(
   const hiddenMassMult = getHiddenAchievementBonus('mass_production', state.unlockedHiddenAchievements);
   const hiddenCoverageMult = getHiddenAchievementBonus('coverage_production', state.unlockedHiddenAchievements);
 
-  const totalMult = buildingMultiplier * allMultiplier * boostedSynergyMultiplier * mutationMultiplier * fbeMultiplier * cosmicMultiplier * milestoneMultiplier * achievementProdMult * talentProdMult * talentBuildingMult * talentAllBuildingMult * hiddenProdMult;
+  // Strategy multipliers
+  const stratProdMult = getStrategyMultiplier('production_mult', state.activeStrategies);
+  const stratMassMult = getStrategyMultiplier('mass_mult', state.activeStrategies);
+  const stratCoverageMult = getStrategyMultiplier('coverage_mult', state.activeStrategies);
+
+  const totalMult = buildingMultiplier * allMultiplier * boostedSynergyMultiplier * mutationMultiplier * fbeMultiplier * cosmicMultiplier * milestoneMultiplier * achievementProdMult * talentProdMult * talentBuildingMult * talentAllBuildingMult * hiddenProdMult * stratProdMult;
 
   sps *= totalMult;
   mps *= totalMult;
   cps *= totalMult;
 
-  // Hidden achievement mass/coverage bonuses
-  mps *= hiddenMassMult;
-  cps *= hiddenCoverageMult;
+  // Hidden achievement mass/coverage bonuses + strategy bonuses
+  mps *= hiddenMassMult * stratMassMult;
+  cps *= hiddenCoverageMult * stratCoverageMult;
 
   // Aspect awakening: mass converter
   if (state.prestige.aspectAwakenings.includes('aspect_mass_converter')) {
@@ -232,6 +238,9 @@ export function getClickValue(state: GameState): number {
   // Hidden achievement click bonus
   base *= getHiddenAchievementBonus('click_mult', state.unlockedHiddenAchievements);
 
+  // Strategy click bonus
+  base *= getStrategyMultiplier('click_mult', state.activeStrategies);
+
   // SPS per click (default 5%, talent can increase)
   const clickSPSPercent = getTalentClickSPSPercent(state.prestige.talents);
   const production = getTotalProduction(state);
@@ -311,6 +320,7 @@ export function getCostMultiplier(state: GameState): number {
   costMult *= getAchievementTrackMultiplier('cost', state.unlockedAchievements);
   costMult *= getTalentMultiplier('cost_reduction', state.prestige.talents);
   costMult *= getHiddenAchievementBonus('cost_reduction', state.unlockedHiddenAchievements);
+  costMult *= getStrategyMultiplier('cost_mult', state.activeStrategies);
   return costMult;
 }
 
@@ -387,7 +397,7 @@ export function calculateOfflineGains(state: GameState, offlineSeconds: number):
   // Offline production is 50% of normal rate (talents can increase this)
   const production = getTotalProduction(state);
   const baseOfflineRate = 0.5;
-  const offlineRate = baseOfflineRate * getTalentMultiplier('offline_mult', state.prestige.talents) * getHiddenAchievementBonus('offline_mult', state.unlockedHiddenAchievements);
+  const offlineRate = baseOfflineRate * getTalentMultiplier('offline_mult', state.prestige.talents) * getHiddenAchievementBonus('offline_mult', state.unlockedHiddenAchievements) * getStrategyMultiplier('offline_mult', state.activeStrategies);
 
   return {
     spores: production.sporesPerSecond * offlineSeconds * offlineRate,
@@ -413,6 +423,7 @@ export function createInitialState(): GameState {
     },
     unlockedAchievements: [],
     unlockedHiddenAchievements: [],
+    activeStrategies: [],
     stats: {
       totalSporesEarned: 0,
       totalClicks: 0,

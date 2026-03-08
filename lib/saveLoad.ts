@@ -46,6 +46,9 @@ export function loadGame(): { state: GameState; offlineSeconds: number } | null 
     if (saved.stats.totalSaves === undefined) {
       saved.stats.totalSaves = 0;
     }
+    if (!saved.activeStrategies) {
+      saved.activeStrategies = [];
+    }
 
     // Calculate time away
     const now = Date.now();

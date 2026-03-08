@@ -14,8 +14,10 @@ import { checkAchievements, getAchievementDef } from '@/lib/achievements';
 import { checkNewMilestones } from '@/lib/milestones';
 import { canPurchaseTalent, TALENTS } from '@/lib/talents';
 import { checkHiddenAchievements, getHiddenAchievementDef, getHiddenAchievementBonus, HiddenCheckContext } from '@/lib/hiddenAchievements';
+import { getStrategyMultiplier } from '@/lib/strategies';
 
 import GameHeader from '@/components/GameHeader';
+import StrategyPanel from '@/components/StrategyPanel';
 import BuildingList from '@/components/BuildingList';
 import UpgradePanel from '@/components/UpgradePanel';
 import SporulationPanel from '@/components/SporulationPanel';
@@ -32,7 +34,7 @@ import StickyResources from '@/components/StickyResources';
 import GoldenSpore from '@/components/GoldenSpore';
 import type { BuyMode } from '@/components/BuildingList';
 
-type Tab = 'buildings' | 'upgrades' | 'talents' | 'secrets' | 'sporulation' | 'stats';
+type Tab = 'buildings' | 'upgrades' | 'talents' | 'strategies' | 'secrets' | 'sporulation' | 'stats';
 
 export default function GamePage() {
   const [state, setState] = useState<GameState | null>(null);
@@ -281,6 +283,20 @@ export default function GamePage() {
     if (state?.settings.sfxEnabled) playSFX('upgrade');
   }, [state?.settings.sfxEnabled]);
 
+  const handleToggleStrategy = useCallback((stratId: string) => {
+    setState(prev => {
+      if (!prev) return prev;
+      const isActive = prev.activeStrategies.includes(stratId);
+      return {
+        ...prev,
+        activeStrategies: isActive
+          ? prev.activeStrategies.filter(id => id !== stratId)
+          : [...prev.activeStrategies, stratId],
+      };
+    });
+    if (state?.settings.sfxEnabled) playSFX('click');
+  }, [state?.settings.sfxEnabled]);
+
   const handleGoldenSpore = useCallback((bonus: number) => {
     setState(prev => {
       if (!prev) return prev;
@@ -381,6 +397,7 @@ export default function GamePage() {
             ['buildings', '🏗️', 'Build'],
             ['upgrades', '⬆️', 'Upgrade'],
             ['talents', '🧬', 'Talents'],
+            ['strategies', '⚔️', 'Strategy'],
             ['secrets', '🔮', 'Secrets'],
             ['sporulation', '✨', 'Sporulate'],
             ['stats', '📊', 'Stats'],
@@ -407,6 +424,9 @@ export default function GamePage() {
         )}
         {activeTab === 'talents' && (
           <TalentsPanel state={state} onBuyTalent={handleBuyTalent} />
+        )}
+        {activeTab === 'strategies' && (
+          <StrategyPanel state={state} onToggleStrategy={handleToggleStrategy} />
         )}
         {activeTab === 'secrets' && (
           <HiddenAchievementsPanel state={state} />
@@ -438,7 +458,7 @@ export default function GamePage() {
         sps={getTotalProduction(state).sporesPerSecond}
         onCollect={handleGoldenSpore}
         sfxEnabled={state.settings.sfxEnabled}
-        goldenMultiplier={getHiddenAchievementBonus('golden_spore_mult', state.unlockedHiddenAchievements)}
+        goldenMultiplier={getHiddenAchievementBonus('golden_spore_mult', state.unlockedHiddenAchievements) * getStrategyMultiplier('golden_spore_mult', state.activeStrategies)}
       />
 
       {/* Achievement toasts */}

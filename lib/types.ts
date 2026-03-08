@@ -127,6 +127,7 @@ export interface GameState {
   prestige: PrestigeState;
   unlockedAchievements: string[];
   unlockedHiddenAchievements: string[];
+  activeStrategies: string[]; // currently active strategy IDs
   stats: GameStats;
   settings: GameSettings;
   lastSaveTime: number;

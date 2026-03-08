@@ -5,7 +5,7 @@
 
 import { BuildingDefinition, GameState } from '@/lib/types';
 import { getBuildingCost } from '@/lib/buildings';
-import { getCostMultiplier } from '@/lib/gameEngine';
+import { getCostMultiplier, getBuildingProductionRate } from '@/lib/gameEngine';
 import { formatNumber } from '@/lib/formatNumber';
 import { getNextMilestone, getMilestoneMultiplier } from '@/lib/milestones';
 
@@ -176,9 +176,32 @@ export default function BuildingCard({ def, owned, state, onPurchase, onPurchase
       </div>
 
       <div className="building-production">
-        +{formatNumber(def.baseProduction.sporesPerSecond, notation)} SPS
-        {def.baseProduction.myceliumMassPerSecond && (
-          <span> | +{formatNumber(def.baseProduction.myceliumMassPerSecond, notation)} Mass/s</span>
+        {owned > 0 ? (
+          <>
+            {/* Show actual production with all multipliers */}
+            {(() => {
+              const prod = getBuildingProductionRate(def.id, owned, state);
+              return (
+                <>
+                  +{formatNumber(prod.sporesPerSecond, notation)} SPS
+                  {(prod.myceliumMassPerSecond || 0) !== 0 && (
+                    <span> | {(prod.myceliumMassPerSecond || 0) > 0 ? '+' : ''}{formatNumber(prod.myceliumMassPerSecond || 0, notation)} Mass/s</span>
+                  )}
+                  {(prod.substrateCoveragePerSecond || 0) > 0 && (
+                    <span> | +{(prod.substrateCoveragePerSecond || 0).toFixed(3)} Cov/s</span>
+                  )}
+                </>
+              );
+            })()}
+          </>
+        ) : (
+          <>
+            {/* Before purchase, show base rate */}
+            +{formatNumber(def.baseProduction.sporesPerSecond, notation)} SPS (base)
+            {def.baseProduction.myceliumMassPerSecond && (
+              <span> | +{formatNumber(def.baseProduction.myceliumMassPerSecond, notation)} Mass/s</span>
+            )}
+          </>
         )}
       </div>
 

@@ -6,6 +6,7 @@ import { GameState, LineageMutation, AspectAwakening } from './types';
 import { getAchievementTrackMultiplier } from './achievementBonuses';
 import { getTalentMultiplier, getTalentStartingSpores } from './talents';
 import { getHiddenAchievementBonus } from './hiddenAchievements';
+import { getStrategyMultiplier } from './strategies';
 
 // --- FBE (Fruiting Body Essence) Calculation ---
 // Based on total spores earned this run
@@ -151,7 +152,8 @@ export function performSporulation(state: GameState): GameState {
   const sporulationMult = getAchievementTrackMultiplier('sporulation', state.unlockedAchievements);
   const talentFBEMult = getTalentMultiplier('fbe_mult', state.prestige.talents);
   const hiddenFBEMult = getHiddenAchievementBonus('fbe_mult', state.unlockedHiddenAchievements);
-  const fbeGain = calculateFBEGain(state.stats.totalSporesEarned, sporulationMult * talentFBEMult * hiddenFBEMult);
+  const stratFBEMult = getStrategyMultiplier('fbe_mult', state.activeStrategies);
+  const fbeGain = calculateFBEGain(state.stats.totalSporesEarned, sporulationMult * talentFBEMult * hiddenFBEMult * stratFBEMult);
   if (fbeGain <= 0) return state; // Can't sporulate yet
 
   const newPrestige = {
