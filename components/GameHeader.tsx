@@ -68,8 +68,10 @@ export default function GameHeader({ state, onClick }: GameHeaderProps) {
             <span className="resource-icon">🧬</span>
             <span className="resource-value">{formatNumber(state.resources.myceliumMass, notation)}</span>
             <span className="resource-name">Mass</span>
-            {(production.myceliumMassPerSecond || 0) > 0 && (
-              <span className="resource-rate">+{formatNumber(production.myceliumMassPerSecond || 0, notation)}/s</span>
+            {(production.myceliumMassPerSecond || 0) !== 0 && (
+              <span className={`resource-rate ${(production.myceliumMassPerSecond || 0) < 0 ? 'rate-negative' : ''}`}>
+                {(production.myceliumMassPerSecond || 0) > 0 ? '+' : ''}{formatNumber(production.myceliumMassPerSecond || 0, notation)}/s
+              </span>
             )}
           </div>
         )}

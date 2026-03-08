@@ -28,16 +28,20 @@ export default function StickyResources({ state }: StickyResourcesProps) {
         {(state.resources.myceliumMass > 0 || state.stats.totalSporesEarned > 5000) && (
           <span className="sticky-pill mass">
             🧬 {formatNumber(state.resources.myceliumMass, notation)}
-            {(production.myceliumMassPerSecond || 0) > 0 && (
-              <span className="sticky-rate"> (+{formatNumber(production.myceliumMassPerSecond || 0, notation)}/s)</span>
+            {(production.myceliumMassPerSecond || 0) !== 0 && (
+              <span className={`sticky-rate ${(production.myceliumMassPerSecond || 0) < 0 ? 'rate-negative' : ''}`}>
+                ({(production.myceliumMassPerSecond || 0) > 0 ? '+' : ''}{formatNumber(production.myceliumMassPerSecond || 0, notation)}/s)
+              </span>
             )}
           </span>
         )}
         {(state.resources.substrateCoverage > 0 || state.prestige.timesPrestiged > 0) && (
           <span className="sticky-pill coverage">
             🗺️ {state.resources.substrateCoverage.toFixed(1)}%
-            {(production.substrateCoveragePerSecond || 0) > 0 && (
-              <span className="sticky-rate"> (+{(production.substrateCoveragePerSecond || 0).toFixed(3)}/s)</span>
+            {(production.substrateCoveragePerSecond || 0) !== 0 && (
+              <span className={`sticky-rate ${(production.substrateCoveragePerSecond || 0) < 0 ? 'rate-negative' : ''}`}>
+                ({(production.substrateCoveragePerSecond || 0) > 0 ? '+' : ''}{(production.substrateCoveragePerSecond || 0).toFixed(3)}/s)
+              </span>
             )}
           </span>
         )}

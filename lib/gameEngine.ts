@@ -302,6 +302,18 @@ export function processClick(state: GameState): GameState {
   };
 }
 
+// --- Get total cost multiplier for buildings ---
+export function getCostMultiplier(state: GameState): number {
+  let costMult = 1;
+  if (state.prestige.aspectAwakenings.includes('aspect_cheap_buildings')) {
+    costMult *= 0.9;
+  }
+  costMult *= getAchievementTrackMultiplier('cost', state.unlockedAchievements);
+  costMult *= getTalentMultiplier('cost_reduction', state.prestige.talents);
+  costMult *= getHiddenAchievementBonus('cost_reduction', state.unlockedHiddenAchievements);
+  return costMult;
+}
+
 // --- Purchase a building ---
 export function purchaseBuilding(state: GameState, buildingId: string): GameState | null {
   const def = getBuildingDef(buildingId);
@@ -310,14 +322,8 @@ export function purchaseBuilding(state: GameState, buildingId: string): GameStat
   const owned = state.buildings.find(b => b.id === buildingId)?.count || 0;
   const cost = getBuildingCost(def, owned);
 
-  // Apply cost reduction from aspect + achievement cost track + talents
-  let costMult = 1;
-  if (state.prestige.aspectAwakenings.includes('aspect_cheap_buildings')) {
-    costMult *= 0.9;
-  }
-  costMult *= getAchievementTrackMultiplier('cost', state.unlockedAchievements);
-  costMult *= getTalentMultiplier('cost_reduction', state.prestige.talents);
-  costMult *= getHiddenAchievementBonus('cost_reduction', state.unlockedHiddenAchievements);
+  // Apply all cost reductions
+  const costMult = getCostMultiplier(state);
 
   const finalSporeCost = cost.spores * costMult;
   const finalMassCost = cost.myceliumMass * costMult;

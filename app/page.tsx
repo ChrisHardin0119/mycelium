@@ -20,6 +20,7 @@ import BuildingList from '@/components/BuildingList';
 import UpgradePanel from '@/components/UpgradePanel';
 import SporulationPanel from '@/components/SporulationPanel';
 import TalentsPanel from '@/components/TalentsPanel';
+import HiddenAchievementsPanel from '@/components/HiddenAchievementsPanel';
 import StatsPanel from '@/components/StatsPanel';
 import OfflineGains from '@/components/OfflineGains';
 import MusicToggle from '@/components/MusicToggle';
@@ -31,7 +32,7 @@ import StickyResources from '@/components/StickyResources';
 import GoldenSpore from '@/components/GoldenSpore';
 import type { BuyMode } from '@/components/BuildingList';
 
-type Tab = 'buildings' | 'upgrades' | 'talents' | 'sporulation' | 'stats';
+type Tab = 'buildings' | 'upgrades' | 'talents' | 'secrets' | 'sporulation' | 'stats';
 
 export default function GamePage() {
   const [state, setState] = useState<GameState | null>(null);
@@ -380,6 +381,7 @@ export default function GamePage() {
             ['buildings', '🏗️', 'Build'],
             ['upgrades', '⬆️', 'Upgrade'],
             ['talents', '🧬', 'Talents'],
+            ['secrets', '🔮', 'Secrets'],
             ['sporulation', '✨', 'Sporulate'],
             ['stats', '📊', 'Stats'],
           ] as [Tab, string, string][]).map(([tab, icon, label]) => (
@@ -405,6 +407,9 @@ export default function GamePage() {
         )}
         {activeTab === 'talents' && (
           <TalentsPanel state={state} onBuyTalent={handleBuyTalent} />
+        )}
+        {activeTab === 'secrets' && (
+          <HiddenAchievementsPanel state={state} />
         )}
         {activeTab === 'sporulation' && (
           <SporulationPanel

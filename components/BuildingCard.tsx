@@ -5,6 +5,7 @@
 
 import { BuildingDefinition, GameState } from '@/lib/types';
 import { getBuildingCost } from '@/lib/buildings';
+import { getCostMultiplier } from '@/lib/gameEngine';
 import { formatNumber } from '@/lib/formatNumber';
 import { getNextMilestone, getMilestoneMultiplier } from '@/lib/milestones';
 
@@ -20,17 +21,12 @@ interface BuildingCardProps {
 }
 
 // Calculate how many of a building you can afford
-function getMaxAffordable(def: BuildingDefinition, owned: number, state: GameState): number {
+function getMaxAffordable(def: BuildingDefinition, owned: number, state: GameState, costMult: number): number {
   let count = 0;
   let testOwned = owned;
   let sporesLeft = state.resources.spores;
   let massLeft = state.resources.myceliumMass;
   const coverageLeft = state.resources.substrateCoverage;
-
-  let costMult = 1;
-  if (state.prestige.aspectAwakenings.includes('aspect_cheap_buildings')) {
-    costMult = 0.9;
-  }
 
   // Cap at 500 to avoid huge loops
   while (count < 500) {
@@ -67,13 +63,11 @@ export default function BuildingCard({ def, owned, state, onPurchase, onPurchase
   const nextMilestone = getNextMilestone(def.id, owned);
   const currentMilestoneMult = getMilestoneMultiplier(def.id, owned);
 
-  let costMult = 1;
-  if (state.prestige.aspectAwakenings.includes('aspect_cheap_buildings')) {
-    costMult = 0.9;
-  }
+  // Use the full cost multiplier (aspect + achievements + talents + hidden)
+  const costMult = getCostMultiplier(state);
 
   // Determine actual buy count
-  const maxAffordable = getMaxAffordable(def, owned, state);
+  const maxAffordable = getMaxAffordable(def, owned, state, costMult);
   let actualBuyCount: number;
   if (buyMode === 'max') {
     actualBuyCount = maxAffordable;
@@ -84,13 +78,35 @@ export default function BuildingCard({ def, owned, state, onPurchase, onPurchase
   const canAfford = actualBuyCount > 0;
 
   // Show cost for the displayed buy amount
-  const displayCount = buyMode === 'max' ? maxAffordable : buyMode;
-  const bulkCost = getBulkCost(def, owned, Math.min(displayCount, maxAffordable || 1), costMult);
-  // For single buy, show exact next cost
+  // ALWAYS show at least the cost of the next 1 purchase so the user can see what they need
   const singleCost = getBuildingCost(def, owned);
-  const showSpores = buyMode === 1 ? singleCost.spores * costMult : bulkCost.spores;
-  const showMass = buyMode === 1 ? singleCost.myceliumMass * costMult : bulkCost.mass;
-  const showCoverage = singleCost.substrateCoverage;
+  let showSpores: number;
+  let showMass: number;
+  let showCoverage: number;
+
+  if (buyMode === 1) {
+    showSpores = singleCost.spores * costMult;
+    showMass = singleCost.myceliumMass * costMult;
+    showCoverage = singleCost.substrateCoverage;
+  } else if (buyMode === 'max') {
+    if (maxAffordable > 0) {
+      const bulkCost = getBulkCost(def, owned, maxAffordable, costMult);
+      showSpores = bulkCost.spores;
+      showMass = bulkCost.mass;
+      showCoverage = singleCost.substrateCoverage;
+    } else {
+      // Can't afford any — show cost of next single purchase
+      showSpores = singleCost.spores * costMult;
+      showMass = singleCost.myceliumMass * costMult;
+      showCoverage = singleCost.substrateCoverage;
+    }
+  } else {
+    // x5, x10, x100 — show total cost for that many (or as many as affordable + remaining)
+    const bulkCost = getBulkCost(def, owned, buyMode, costMult);
+    showSpores = bulkCost.spores;
+    showMass = bulkCost.mass;
+    showCoverage = singleCost.substrateCoverage;
+  }
 
   const tierColors: Record<number, string> = {
     1: '#22c55e',
